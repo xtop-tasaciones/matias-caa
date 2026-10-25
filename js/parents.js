@@ -77,7 +77,7 @@ export function bindParentCard(el, card) {
       if (!ghost && Math.hypot(ev.clientX - sx, ev.clientY - sy) > 12) {
         const r = el.getBoundingClientRect();
         ghost = el.cloneNode(true);
-        ghost.classList.add('ghost');
+        ghost.classList.add('drag-ghost');
         Object.assign(ghost.style, { width: r.width + 'px', height: r.height + 'px' });
         document.body.append(ghost);
         el.classList.add('dragging');

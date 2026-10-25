@@ -209,7 +209,8 @@ export function activateCard(card, boardName) {
     return;
   }
   voice.sayCard(card);
-  if (S.settings.addToPhrase) addToPhrase({ label: card.label, cardId: card.id, color: card.color, emoji: card.emoji, image: card.image });
+  const toBody = card.link && S.boards.get(card.link)?.special === 'body';
+  if (S.settings.addToPhrase && !toBody) addToPhrase({ label: card.label, cardId: card.id, color: card.color, emoji: card.emoji, image: card.image });
   logEvent({ kind: 'card', label: card.label, cardId: card.id, board: boardName || S.boards.get(card.boardId)?.name || '' });
   if (card.link && S.boards.has(card.link)) openBoard(card.link);
 }

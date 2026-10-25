@@ -53,7 +53,7 @@ export async function openLog() {
 
   function bars(rows, max) {
     return h('div', { class: 'bars' }, rows.map(([k, v]) =>
-      h('div', { class: 'bar-row' }, h('span', { class: 'bar-k' }, k), h('span', { class: 'bar' }, h('i', { style: { width: Math.max(4, (v / max) * 100) + '%' } })), h('b', {}, v))));
+      h('div', { class: 'bar-row' }, h('span', { class: 'bar-k' }, k), h('span', { class: 'bar' }, h('i', { style: { width: (v ? Math.max(4, (v / max) * 100) : 0) + '%' } })), h('b', {}, v))));
   }
 
   function draw() {
