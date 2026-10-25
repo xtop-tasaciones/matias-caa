@@ -7,7 +7,7 @@
   "ayuda"
  ],
  "q-bano": [
-  "ir al baño",
+  "inodoro",
   "váter"
  ],
  "q-agua": [
@@ -47,8 +47,8 @@
   "jugar"
  ],
  "f-lugares": [
-  "lugar",
-  "ciudad"
+  "ciudad",
+  "calle"
  ],
  "f-acciones": [
   "acción",
@@ -70,8 +70,8 @@
   "aseo"
  ],
  "f-rutinas": [
-  "rutina",
-  "horario"
+  "horario",
+  "rutina"
  ],
  "f-agenda": [
   "agenda"
@@ -142,7 +142,8 @@
   "cerrar"
  ],
  "c-poner": [
-  "poner"
+  "colocar",
+  "meter"
  ],
  "c-sacar": [
   "sacar"
@@ -169,6 +170,7 @@
   "mamá"
  ],
  "p-papa": [
+  "padre",
   "papá"
  ],
  "p-matias": [
@@ -247,7 +249,8 @@
   "uvas"
  ],
  "co-mango": [
-  "mango"
+  "mango fruta",
+  "fruta tropical"
  ],
  "co-palta": [
   "aguacate",
@@ -276,7 +279,8 @@
   "ají de gallina"
  ],
  "co-tamal": [
-  "tamal"
+  "tamal",
+  "empanada"
  ],
  "co-salchipapa": [
   "patatas fritas",
@@ -341,7 +345,8 @@
   "emoliente"
  ],
  "b-te": [
-  "té"
+  "taza de té",
+  "tetera"
  ],
  "j-pelota": [
   "pelota"
@@ -385,8 +390,9 @@
   "música"
  ],
  "j-tablet": [
-  "tableta",
-  "tablet"
+  "tablet",
+  "tableta digital",
+  "ordenador"
  ],
  "j-tele": [
   "televisión",
@@ -438,8 +444,8 @@
   "baño"
  ],
  "l-afuera": [
-  "fuera",
-  "afuera"
+  "calle",
+  "exterior"
  ],
  "l-terapia": [
   "logopeda",
@@ -470,8 +476,8 @@
   "besar"
  ],
  "a-cargame": [
-  "coger en brazos",
-  "cárgame"
+  "en brazos",
+  "cargar"
  ],
  "a-cosquillas": [
   "hacer cosquillas",
@@ -591,21 +597,22 @@
  ],
  "h-manos": [
   "lavarse las manos",
-  "lavarse las manos"
+  "lavar las manos"
  ],
  "h-dientes": [
-  "lavarse los dientes",
-  "cepillarse los dientes"
+  "cepillarse los dientes",
+  "lavarse los dientes"
  ],
  "h-banarse": [
   "bañarse",
-  "bañarse"
+  "bañera"
  ],
  "h-ducha": [
   "ducha"
  ],
  "h-peinarse": [
-  "peinarse"
+  "peinarse",
+  "peine"
  ],
  "h-papel": [
   "papel higiénico"
@@ -633,18 +640,19 @@
   "despertar"
  ],
  "ru-vestirse": [
-  "vestirse"
+  "vestirse",
+  "ropa"
  ],
  "ru-desayunar": [
   "desayunar"
  ],
  "ru-dientes": [
-  "lavarse los dientes",
-  "cepillarse los dientes"
+  "cepillarse los dientes",
+  "lavarse los dientes"
  ],
  "ru-colegio": [
-  "ir al colegio",
-  "ir al colegio"
+  "colegio",
+  "escuela"
  ],
  "ru-lonchera": [
   "almuerzo",
@@ -680,7 +688,8 @@
   "cenar"
  ],
  "ru-banarse": [
-  "bañarse"
+  "bañarse",
+  "bañera"
  ],
  "ru-pijama": [
   "pijama",

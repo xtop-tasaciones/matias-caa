@@ -30,10 +30,15 @@ def find(q):
             pass
     return None
 
-def save_png(data, path, size=300):
+def save_png(data, path, size=256):
     im = Image.open(io.BytesIO(data)).convert('RGBA')
     im.thumbnail((size, size), Image.LANCZOS)
-    im.save(path, optimize=True)
+    im.quantize(colors=96, method=Image.Quantize.FASTOCTREE).save(path, optimize=True)
+
+def reprocess(path):
+    im = Image.open(path).convert('RGBA')
+    im.thumbnail((256, 256), Image.LANCZOS)
+    im.quantize(colors=96, method=Image.Quantize.FASTOCTREE).save(path, optimize=True)
 
 for card_id, qs in queries.items():
     forced = index.get(card_id, {}).get('fixed')
@@ -50,6 +55,9 @@ for card_id, qs in queries.items():
         continue
     pid = hit['_id']
     if index.get(card_id, {}).get('arasaac') == pid and os.path.exists(f'pictos/bn/{card_id}.png'):
+        if index[card_id].get('v') != 2:
+            reprocess(f'pictos/color/{card_id}.png'); reprocess(f'pictos/bn/{card_id}.png')
+            index[card_id]['v'] = 2
         continue
     try:
         save_png(get(f'https://static.arasaac.org/pictograms/{pid}/{pid}_500.png'), f'pictos/color/{card_id}.png')
@@ -58,7 +66,7 @@ for card_id, qs in queries.items():
         print('ERROR', card_id, pid, e)
         continue
     kw = (hit.get('keywords') or [{}])[0].get('keyword', '')
-    index[card_id] = {**index.get(card_id, {}), 'arasaac': pid, 'keyword': kw}
+    index[card_id] = {**index.get(card_id, {}), 'arasaac': pid, 'keyword': kw, 'v': 2}
     print(card_id, pid, kw)
 
 json.dump(index, open(index_path, 'w', encoding='utf-8'), ensure_ascii=False, indent=1, sort_keys=True)
