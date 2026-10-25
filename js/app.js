@@ -99,7 +99,12 @@ export function firstFreePos(boardId, from = 0) {
   while (used.has(p)) p++;
   return p;
 }
-export const perPage = () => S.settings.cols * S.settings.rows;
+export function gridOf(boardId = S.board) {
+  const b = S.boards.get(boardId);
+  if (b && b.cols && b.rows) return { cols: b.cols, rows: b.rows };
+  return { cols: S.settings.cols, rows: S.settings.rows };
+}
+export const perPage = (boardId = S.board) => { const g = gridOf(boardId); return g.cols * g.rows; };
 
 export function imgSrc(card) {
   if (!card || !card.image) return null;
@@ -331,6 +336,10 @@ export function renderMain() {
     return;
   }
   const grid = h('div', { class: 'grid' });
+  const g = gridOf(S.board);
+  grid.style.setProperty('--cols', g.cols);
+  grid.style.setProperty('--rows', g.rows);
+  if (g.cols * g.rows <= 9) grid.classList.add('big');
   const n = perPage();
   const start = S.page * n;
   const byPos = new Map(cardsOf(S.board).map(c => [c.pos, c]));
@@ -402,6 +411,30 @@ export function checkScheduleDay() {
   return false;
 }
 
+// ---------- Pantalla principal simple (5 fichas grandes) ----------
+const HOME_V2 = ['f-personas', 'f-comida', 'f-lugares', 'f-juguetes', 'f-cuerpo'];
+async function migrateLayout() {
+  if ((await db.getKV('layoutVersion', 1)) >= 2) return;
+  const home = S.boards.get('home');
+  if (home) await saveBoard({ ...home, cols: 3, rows: 2 });
+  const rename = async (cardId, boardId, label, emoji) => {
+    const c = S.cards.get(cardId);
+    if (c) await saveCard({ ...c, label, ...(emoji ? { emoji } : {}) });
+    const b = S.boards.get(boardId);
+    if (b) await saveBoard({ ...b, name: label });
+  };
+  await rename('f-personas', 'personas', 'Familia');
+  await rename('f-juguetes', 'juguetes', 'Intereses', '⭐');
+  const others = cardsOf('home').filter(c => !HOME_V2.includes(c.id));
+  let p = 6;
+  for (const c of others) await saveCard({ ...c, pos: p++, hidden: true });
+  for (const [i, id] of HOME_V2.entries()) {
+    const c = S.cards.get(id);
+    if (c && c.boardId === 'home') await saveCard({ ...c, pos: i, hidden: false });
+  }
+  await db.setKV('layoutVersion', 2);
+}
+
 // ---------- Inicio ----------
 async function init() {
   try {
@@ -412,6 +445,7 @@ async function init() {
     document.body.innerHTML = '<p style="padding:2rem;font-size:1.2rem">No se pudo abrir el almacenamiento del dispositivo. Si estás en modo incógnito/privado, abre la app en una ventana normal.</p>';
     throw e;
   }
+  await migrateLayout();
   checkScheduleDay();
   applySettings();
   render();

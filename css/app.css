@@ -346,3 +346,5 @@ ol li { margin: 6px 0; }
   .ptoolbar { flex-wrap: nowrap; }
   .phint { display: none; }
 }
+.grid.big .card .label { font-size: calc(var(--fs) * 1.5); font-size: min(calc(var(--fs) * 1.6), 13cqi); padding-bottom: 8px; }
+.grid.big .card { --bw: 9px; }

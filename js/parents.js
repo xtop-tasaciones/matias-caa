@@ -1,7 +1,7 @@
 // Modo Padres: entrada protegida, edición de fichas y carpetas, ajustes, respaldo, ARASAAC.
 import * as db from './db.js';
 import {
-  S, COLORS, DEFAULT_SETTINGS, cardEl, cardsOf, firstFreePos, perPage, saveCard, saveBoard, saveSettings,
+  S, COLORS, DEFAULT_SETTINGS, cardEl, cardsOf, firstFreePos, perPage, gridOf, saveCard, saveBoard, saveSettings,
   setParent, render, renderMain, renderQuick, gcMedia, seedDefaults, applySettings,
 } from './app.js';
 import * as voice from './speech.js';
@@ -56,6 +56,7 @@ export function toolbar() {
     h('span', { class: 'pbadge' }, '🔧 Modo Padres'),
     b('➕ Nueva ficha', () => newCard(S.boards.get(S.board)?.special ? 'home' : S.board, null)),
     b('⚙️ Ajustes', openSettings),
+    b('🔲 Tamaño de esta pantalla', openBoardGrid),
     b('💾 Respaldo', openBackup),
     b('📊 Registro', openLog),
     b('🖼️ ARASAAC', openArasaacBulk),
@@ -231,9 +232,9 @@ export function editCard(card) {
 
   // Ubicación
   const boardSel = h('select', {}, boardOptions().map(b => h('option', { value: b.id, selected: d.boardId === b.id }, b.name)));
-  const n = perPage(), cols = S.settings.cols;
+  const gd = gridOf(d.boardId), n = gd.cols * gd.rows, cols = gd.cols;
   const pIn = h('input', { type: 'number', min: 1, value: Math.floor(d.pos / n) + 1, class: 'num-in' });
-  const rIn = h('input', { type: 'number', min: 1, max: S.settings.rows, value: Math.floor((d.pos % n) / cols) + 1, class: 'num-in' });
+  const rIn = h('input', { type: 'number', min: 1, max: gd.rows, value: Math.floor((d.pos % n) / cols) + 1, class: 'num-in' });
   const cIn = h('input', { type: 'number', min: 1, max: cols, value: (d.pos % n) % cols + 1, class: 'num-in' });
   const hiddenChk = h('input', { type: 'checkbox', checked: !!d.hidden });
 
@@ -258,7 +259,7 @@ export function editCard(card) {
     if (newBoard !== card.boardId) pos = firstFreePos(newBoard);
     else {
       const pg = Math.max(1, Number(pIn.value) || 1) - 1;
-      const r = Math.min(S.settings.rows, Math.max(1, Number(rIn.value) || 1)) - 1;
+      const r = Math.min(gd.rows, Math.max(1, Number(rIn.value) || 1)) - 1;
       const c = Math.min(cols, Math.max(1, Number(cIn.value) || 1)) - 1;
       pos = d.boardId === 'quick' ? d.pos : pg * n + r * cols + c;
     }
@@ -511,6 +512,21 @@ function openArasaacBulk() {
     h('p', {}, 'Esto reemplaza los emojis del vocabulario por pictogramas de ARASAAC (los mismos que se usan en muchos colegios). Necesita internet solo esta vez; después quedan guardados en el dispositivo.'),
     h('p', { class: 'muted small' }, 'Las fichas que ya tienen foto o imagen no se tocan. Puedes elegir otro pictograma para cualquier ficha desde su editor.'),
     start, bar, status);
+}
+
+// ---------- Cuadrícula propia de un tablero ----------
+function openBoardGrid() {
+  const b = S.boards.get(S.board);
+  if (!b || b.special) { toast('Abre una carpeta normal o el Inicio para cambiar su tamaño'); return; }
+  const m = modal('Tamaño de “' + b.name + '”', { wide: true, onClose: () => render() });
+  const set = async (cols, rows) => { const nb = { ...b }; if (cols) { nb.cols = cols; nb.rows = rows; } else { delete nb.cols; delete nb.rows; } await saveBoard(nb); m.close(); };
+  const g = gridOf(b.id);
+  m.body.append(
+    h('p', {}, 'Elige cuántas fichas grandes se ven en esta pantalla (columnas × filas). Las demás carpetas siguen con el tamaño general de Ajustes.'),
+    h('div', { class: 'row wrap' }, [[1, 1], [2, 1], [2, 2], [3, 2], [5, 1], [3, 3], [4, 3], [4, 4], [5, 4], [6, 5], [8, 5]].map(([c, r]) =>
+      h('button', { class: 'btn' + (b.cols === c && b.rows === r ? ' on' : ''), onclick: () => set(c, r) }, `${c}×${r}`))),
+    h('div', { class: 'row', style: { marginTop: '12px' } }, h('button', { class: 'btn', onclick: () => set(null) }, `Usar el tamaño general (${S.settings.cols}×${S.settings.rows})`)),
+    h('p', { class: 'muted small' }, `Ahora: ${g.cols}×${g.rows}. Las fichas que no caben pasan a la página siguiente; las ocultas no se muestran al niño.`));
 }
 
 // ---------- Ajustes ----------
