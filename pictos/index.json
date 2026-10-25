@@ -1,0 +1,874 @@
+{
+ "a-abrazar": {
+  "arasaac": 6023,
+  "keyword": "abrazar"
+ },
+ "a-bailar": {
+  "arasaac": 2652,
+  "keyword": "baile"
+ },
+ "a-besar": {
+  "arasaac": 6062,
+  "keyword": "besar"
+ },
+ "a-caminar": {
+  "arasaac": 3251,
+  "keyword": "caminar"
+ },
+ "a-cantar": {
+  "arasaac": 2315,
+  "keyword": "cantar"
+ },
+ "a-cargame": {
+  "arasaac": 4606,
+  "keyword": "coger la botella"
+ },
+ "a-correr": {
+  "arasaac": 2719,
+  "keyword": "correr"
+ },
+ "a-cosquillas": {
+  "arasaac": 5480,
+  "keyword": "cosquillas"
+ },
+ "a-dormir": {
+  "arasaac": 2369,
+  "keyword": "dormir"
+ },
+ "a-escuchar": {
+  "arasaac": 2381,
+  "keyword": "oir"
+ },
+ "a-esperar": {
+  "arasaac": 8109,
+  "keyword": "esperar"
+ },
+ "a-lavar": {
+  "arasaac": 5496,
+  "keyword": "lavar la ropa"
+ },
+ "a-leer": {
+  "arasaac": 7141,
+  "keyword": "leer"
+ },
+ "a-nadar": {
+  "arasaac": 6568,
+  "keyword": "nadar"
+ },
+ "a-pintar": {
+  "arasaac": 2348,
+  "keyword": "pintar"
+ },
+ "a-salir": {
+  "arasaac": 2806,
+  "keyword": "salir"
+ },
+ "a-saltar": {
+  "arasaac": 2804,
+  "keyword": "saltar"
+ },
+ "a-sentarse": {
+  "arasaac": 27268,
+  "keyword": "sentar en el borde"
+ },
+ "b-agua": {
+  "arasaac": 2248,
+  "keyword": "agua"
+ },
+ "b-avena": {
+  "arasaac": 6921,
+  "keyword": "avena"
+ },
+ "b-chicha": {
+  "arasaac": 4732,
+  "keyword": "refresco"
+ },
+ "b-emoliente": {
+  "arasaac": 2429,
+  "keyword": "infusión"
+ },
+ "b-gaseosa": {
+  "arasaac": 4732,
+  "keyword": "refresco"
+ },
+ "b-jugo": {
+  "arasaac": 11463,
+  "keyword": "zumo"
+ },
+ "b-leche": {
+  "arasaac": 2445,
+  "keyword": "leche"
+ },
+ "b-limonada": {
+  "arasaac": 6551,
+  "keyword": "limonada"
+ },
+ "b-te": {
+  "arasaac": 6625,
+  "keyword": "tú"
+ },
+ "body-barriga": {
+  "arasaac": 2786,
+  "keyword": "tripa"
+ },
+ "body-boca": {
+  "arasaac": 2663,
+  "keyword": "boca"
+ },
+ "body-brazo": {
+  "arasaac": 2669,
+  "keyword": "brazo"
+ },
+ "body-cabeza": {
+  "arasaac": 2673,
+  "keyword": "cabeza"
+ },
+ "body-diente": {
+  "arasaac": 10267,
+  "keyword": "diente"
+ },
+ "body-espalda": {
+  "arasaac": 2748,
+  "keyword": "espalda"
+ },
+ "body-garganta": {
+  "arasaac": 3332,
+  "keyword": "garganta"
+ },
+ "body-mano": {
+  "arasaac": 2928,
+  "keyword": "mano"
+ },
+ "body-nariz": {
+  "arasaac": 2887,
+  "keyword": "nariz"
+ },
+ "body-oido": {
+  "arasaac": 39498,
+  "keyword": "oído"
+ },
+ "body-ojo": {
+  "arasaac": 6573,
+  "keyword": "ojo"
+ },
+ "body-pecho": {
+  "arasaac": 2853,
+  "keyword": "pecho"
+ },
+ "body-pie": {
+  "arasaac": 2841,
+  "keyword": "pie"
+ },
+ "body-pierna": {
+  "arasaac": 8666,
+  "keyword": "pierna"
+ },
+ "body-poto": {
+  "arasaac": 2730,
+  "keyword": "culo"
+ },
+ "body-rodilla": {
+  "arasaac": 2810,
+  "keyword": "rodilla"
+ },
+ "c-abajo": {
+  "arasaac": 5355,
+  "keyword": "abajo"
+ },
+ "c-abrir": {
+  "arasaac": 24825,
+  "keyword": "abrir"
+ },
+ "c-alla": {
+  "arasaac": 5375,
+  "keyword": "ahí"
+ },
+ "c-aqui": {
+  "arasaac": 5382,
+  "keyword": "aquí"
+ },
+ "c-arriba": {
+  "arasaac": 5388,
+  "keyword": "arriba"
+ },
+ "c-cerrar": {
+  "arasaac": 2697,
+  "keyword": "cerrar"
+ },
+ "c-chau": {
+  "arasaac": 5896,
+  "keyword": "adiós"
+ },
+ "c-comer": {
+  "arasaac": 2349,
+  "keyword": "comer"
+ },
+ "c-dar": {
+  "arasaac": 17038,
+  "keyword": "dar"
+ },
+ "c-gracias": {
+  "arasaac": 8129,
+  "keyword": "gracias"
+ },
+ "c-grande": {
+  "arasaac": 4658,
+  "keyword": "grande"
+ },
+ "c-hola": {
+  "arasaac": 6009,
+  "keyword": "hola"
+ },
+ "c-ir": {
+  "arasaac": 2432,
+  "keyword": "ir"
+ },
+ "c-jugar": {
+  "arasaac": 2439,
+  "keyword": "jugar"
+ },
+ "c-megusta": {
+  "arasaac": 2418,
+  "keyword": "gustar"
+ },
+ "c-nomegusta": {
+  "arasaac": 6155,
+  "keyword": "no gustar"
+ },
+ "c-noquiero": {
+  "arasaac": 6156,
+  "keyword": "yo no quiero"
+ },
+ "c-otro": {
+  "arasaac": 17054,
+  "keyword": "otro"
+ },
+ "c-pequeno": {
+  "arasaac": 4716,
+  "keyword": "pequeño"
+ },
+ "c-poner": {
+  "arasaac": 6627,
+  "keyword": "vestir"
+ },
+ "c-porfavor": {
+  "arasaac": 8195,
+  "keyword": "por favor"
+ },
+ "c-sacar": {
+  "arasaac": 5568,
+  "keyword": "sacar"
+ },
+ "c-tomar": {
+  "arasaac": 2276,
+  "keyword": "beber"
+ },
+ "c-tu": {
+  "arasaac": 2608,
+  "keyword": "tú"
+ },
+ "c-venir": {
+  "arasaac": 11708,
+  "keyword": "venir"
+ },
+ "c-ver": {
+  "arasaac": 2474,
+  "keyword": "ver"
+ },
+ "c-yo": {
+  "arasaac": 2617,
+  "keyword": "yo"
+ },
+ "co-aji": {
+  "arasaac": 5467,
+  "keyword": "estofado"
+ },
+ "co-arroz": {
+  "arasaac": 6911,
+  "keyword": "arroz"
+ },
+ "co-camote": {
+  "arasaac": 36354,
+  "keyword": "boniato"
+ },
+ "co-canchita": {
+  "arasaac": 5534,
+  "keyword": "palomitas"
+ },
+ "co-carne": {
+  "arasaac": 2316,
+  "keyword": "carne"
+ },
+ "co-cereal": {
+  "arasaac": 2328,
+  "keyword": "cereales"
+ },
+ "co-choclo": {
+  "arasaac": 7150,
+  "keyword": "mazorca de maíz"
+ },
+ "co-chocolate": {
+  "arasaac": 2334,
+  "keyword": "chocolate"
+ },
+ "co-fideos": {
+  "arasaac": 2383,
+  "keyword": "espaguetis"
+ },
+ "co-galleta": {
+  "arasaac": 8312,
+  "keyword": "galleta"
+ },
+ "co-gelatina": {
+  "arasaac": 21890,
+  "keyword": "gelatina"
+ },
+ "co-helado": {
+  "arasaac": 35209,
+  "keyword": "helado"
+ },
+ "co-huevo": {
+  "arasaac": 2427,
+  "keyword": "huevo"
+ },
+ "co-lomo": {
+  "arasaac": 2316,
+  "keyword": "carne"
+ },
+ "co-mandarina": {
+  "arasaac": 11298,
+  "keyword": "mandarina"
+ },
+ "co-mango": {
+  "arasaac": 10256,
+  "keyword": "mango"
+ },
+ "co-manzana": {
+  "arasaac": 2462,
+  "keyword": "manzana"
+ },
+ "co-mazamorra": {
+  "arasaac": 7216,
+  "keyword": "postre"
+ },
+ "co-palta": {
+  "arasaac": 8009,
+  "keyword": "aguacate"
+ },
+ "co-pan": {
+  "arasaac": 2494,
+  "keyword": "pan"
+ },
+ "co-papa": {
+  "arasaac": 2503,
+  "keyword": "patata"
+ },
+ "co-pescado": {
+  "arasaac": 2519,
+  "keyword": "pescado"
+ },
+ "co-platano": {
+  "arasaac": 2530,
+  "keyword": "plátano"
+ },
+ "co-pollo": {
+  "arasaac": 2533,
+  "keyword": "pollo"
+ },
+ "co-queso": {
+  "arasaac": 2541,
+  "keyword": "queso"
+ },
+ "co-salchipapa": {
+  "arasaac": 2505,
+  "keyword": "patatas fritas"
+ },
+ "co-sopa": {
+  "arasaac": 2573,
+  "keyword": "sopa"
+ },
+ "co-uvas": {
+  "arasaac": 3247,
+  "keyword": "uvas"
+ },
+ "co-yogur": {
+  "arasaac": 2618,
+  "keyword": "yogur"
+ },
+ "f-acciones": {
+  "arasaac": 7297,
+  "keyword": "verbo"
+ },
+ "f-agenda": {
+  "arasaac": 5898,
+  "keyword": "agenda"
+ },
+ "f-bebidas": {
+  "arasaac": 4575,
+  "keyword": "bebida"
+ },
+ "f-comida": {
+  "arasaac": 4611,
+  "keyword": "comida"
+ },
+ "f-cuerpo": {
+  "arasaac": 2367,
+  "keyword": "dolor"
+ },
+ "f-elegir": {
+  "arasaac": 6483,
+  "keyword": "escoger"
+ },
+ "f-higiene": {
+  "arasaac": 32576,
+  "keyword": "salud e higiene"
+ },
+ "f-juguetes": {
+  "arasaac": 9813,
+  "keyword": "juguetes"
+ },
+ "f-lugares": {
+  "arasaac": 9819,
+  "keyword": "lugar"
+ },
+ "f-personas": {
+  "arasaac": 2392,
+  "keyword": "familia"
+ },
+ "f-ropa": {
+  "arasaac": 7233,
+  "keyword": "ropa"
+ },
+ "f-rutinas": {
+  "arasaac": 37314,
+  "keyword": "manos quietas"
+ },
+ "f-sentimientos": {
+  "arasaac": 39091,
+  "keyword": "encantado"
+ },
+ "h-crema": {
+  "arasaac": 3376,
+  "keyword": "pomada"
+ },
+ "h-dientes": {
+  "arasaac": 26744,
+  "keyword": "cepillo eléctrico"
+ },
+ "h-ducha": {
+  "arasaac": 2370,
+  "keyword": "ducha"
+ },
+ "h-manos": {
+  "arasaac": 10384,
+  "keyword": "educación física"
+ },
+ "h-nariz": {
+  "arasaac": 7256,
+  "keyword": "sonar"
+ },
+ "h-papel": {
+  "arasaac": 2862,
+  "keyword": "papel higiénico"
+ },
+ "h-pelo": {
+  "arasaac": 8084,
+  "keyword": "cortar el pelo"
+ },
+ "h-toalla": {
+  "arasaac": 2593,
+  "keyword": "toalla"
+ },
+ "h-unas": {
+  "arasaac": 10152,
+  "keyword": "cortarse las uñas"
+ },
+ "j-bloques": {
+  "arasaac": 4935,
+  "keyword": "bloques de construcción"
+ },
+ "j-burbujas": {
+  "arasaac": 6945,
+  "keyword": "burbujas"
+ },
+ "j-carro": {
+  "arasaac": 2339,
+  "keyword": "coche"
+ },
+ "j-colores": {
+  "arasaac": 4951,
+  "keyword": "pinturas de cera"
+ },
+ "j-dinosaurio": {
+  "arasaac": 2738,
+  "keyword": "dinosaurio"
+ },
+ "j-globo": {
+  "arasaac": 2408,
+  "keyword": "globo"
+ },
+ "j-libro": {
+  "arasaac": 2450,
+  "keyword": "libro"
+ },
+ "j-munieca": {
+  "arasaac": 2482,
+  "keyword": "muñeca"
+ },
+ "j-musica": {
+  "arasaac": 11311,
+  "keyword": "música"
+ },
+ "j-pelota": {
+  "arasaac": 3241,
+  "keyword": "pelota"
+ },
+ "j-peluche": {
+  "arasaac": 4945,
+  "keyword": "osito"
+ },
+ "j-rompecabezas": {
+  "arasaac": 26403,
+  "keyword": "rompecabezas"
+ },
+ "j-tablet": {
+  "arasaac": 25940,
+  "keyword": "chocolate"
+ },
+ "j-tele": {
+  "arasaac": 25498,
+  "keyword": "tele"
+ },
+ "j-tren": {
+  "arasaac": 2603,
+  "keyword": "tren"
+ },
+ "l-abuela": {
+  "arasaac": 2317,
+  "keyword": "casa"
+ },
+ "l-afuera": {
+  "arasaac": 5475,
+  "keyword": "fuera"
+ },
+ "l-bano": {
+  "arasaac": 6929,
+  "keyword": "cuarto de baño"
+ },
+ "l-casa": {
+  "arasaac": 2317,
+  "keyword": "casa"
+ },
+ "l-cocina": {
+  "arasaac": 2341,
+  "keyword": "cocina"
+ },
+ "l-colegio": {
+  "arasaac": 3082,
+  "keyword": "colegio"
+ },
+ "l-cuarto": {
+  "arasaac": 5988,
+  "keyword": "dormitorio"
+ },
+ "l-hospital": {
+  "arasaac": 3116,
+  "keyword": "hospital"
+ },
+ "l-mercado": {
+  "arasaac": 32942,
+  "keyword": "mercado"
+ },
+ "l-parque": {
+  "arasaac": 2859,
+  "keyword": "parque"
+ },
+ "l-piscina": {
+  "arasaac": 3142,
+  "keyword": "piscina"
+ },
+ "l-playa": {
+  "arasaac": 2826,
+  "keyword": "playa"
+ },
+ "l-plazavea": {
+  "arasaac": 3389,
+  "keyword": "supermercado"
+ },
+ "l-polleria": {
+  "arasaac": 10283,
+  "keyword": "restaurante"
+ },
+ "l-terapia": {
+  "arasaac": 2454,
+  "keyword": "logopeda"
+ },
+ "l-tienda": {
+  "arasaac": 9117,
+  "keyword": "tienda"
+ },
+ "p-abuela": {
+  "arasaac": 2243,
+  "keyword": "abuela"
+ },
+ "p-abuelo": {
+  "arasaac": 2244,
+  "keyword": "abuelo"
+ },
+ "p-amigo": {
+  "arasaac": 8487,
+  "keyword": "amigo"
+ },
+ "p-bebe": {
+  "arasaac": 2275,
+  "keyword": "bebé"
+ },
+ "p-doctor": {
+  "arasaac": 2467,
+  "keyword": "médico"
+ },
+ "p-hermana": {
+  "arasaac": 2422,
+  "keyword": "hermana"
+ },
+ "p-hermano": {
+  "arasaac": 2423,
+  "keyword": "hermano"
+ },
+ "p-mama": {
+  "arasaac": 2458,
+  "keyword": "mamá"
+ },
+ "p-matias": {
+  "arasaac": 2485,
+  "keyword": "niño"
+ },
+ "p-papa": {
+  "arasaac": 2503,
+  "keyword": "patata"
+ },
+ "p-primo": {
+  "arasaac": 30340,
+  "keyword": "primo"
+ },
+ "p-profesora": {
+  "arasaac": 2456,
+  "keyword": "maestra"
+ },
+ "p-terapeuta": {
+  "arasaac": 38778,
+  "keyword": "terapeuta ocupacional"
+ },
+ "p-tia": {
+  "arasaac": 30271,
+  "keyword": "tía"
+ },
+ "p-tio": {
+  "arasaac": 30255,
+  "keyword": "tío"
+ },
+ "q-agua": {
+  "arasaac": 2248,
+  "keyword": "agua"
+ },
+ "q-ayuda": {
+  "arasaac": 4570,
+  "keyword": "ayudar"
+ },
+ "q-bano": {
+  "arasaac": 27541,
+  "keyword": "quedarse solo"
+ },
+ "q-duele": {
+  "arasaac": 2367,
+  "keyword": "dolor"
+ },
+ "q-mas": {
+  "arasaac": 3220,
+  "keyword": "más"
+ },
+ "q-no": {
+  "arasaac": 5526,
+  "keyword": "no"
+ },
+ "q-para": {
+  "arasaac": 7195,
+  "keyword": "parar"
+ },
+ "q-quiero": {
+  "arasaac": 5441,
+  "keyword": "querer"
+ },
+ "q-si": {
+  "arasaac": 5584,
+  "keyword": "sí"
+ },
+ "q-termine": {
+  "arasaac": 5358,
+  "keyword": "terminar"
+ },
+ "r-calzoncillo": {
+  "arasaac": 2303,
+  "keyword": "calzoncillo"
+ },
+ "r-casaca": {
+  "arasaac": 4872,
+  "keyword": "chaqueta"
+ },
+ "r-chompa": {
+  "arasaac": 2436,
+  "keyword": "jersey"
+ },
+ "r-gorra": {
+  "arasaac": 2411,
+  "keyword": "gorra"
+ },
+ "r-medias": {
+  "arasaac": 2298,
+  "keyword": "calcetines"
+ },
+ "r-panal": {
+  "arasaac": 2863,
+  "keyword": "pañal"
+ },
+ "r-pantalon": {
+  "arasaac": 2565,
+  "keyword": "pantalón"
+ },
+ "r-pijama": {
+  "arasaac": 2522,
+  "keyword": "pijama"
+ },
+ "r-polo": {
+  "arasaac": 2309,
+  "keyword": "camiseta"
+ },
+ "r-short": {
+  "arasaac": 13638,
+  "keyword": "pantalones"
+ },
+ "r-zapatillas": {
+  "arasaac": 2621,
+  "keyword": "zapatillas"
+ },
+ "r-zapatos": {
+  "arasaac": 2622,
+  "keyword": "zapatos"
+ },
+ "ru-almorzar": {
+  "arasaac": 2349,
+  "keyword": "comer"
+ },
+ "ru-cenar": {
+  "arasaac": 4593,
+  "keyword": "cenar"
+ },
+ "ru-colegio": {
+  "arasaac": 36473,
+  "keyword": "trasladarse"
+ },
+ "ru-desayunar": {
+  "arasaac": 4625,
+  "keyword": "desayunar"
+ },
+ "ru-despertar": {
+  "arasaac": 8988,
+  "keyword": "despertar"
+ },
+ "ru-dientes": {
+  "arasaac": 26744,
+  "keyword": "cepillo eléctrico"
+ },
+ "ru-dormir": {
+  "arasaac": 2369,
+  "keyword": "dormir"
+ },
+ "ru-jugar": {
+  "arasaac": 2439,
+  "keyword": "jugar"
+ },
+ "ru-lonchera": {
+  "arasaac": 28207,
+  "keyword": "almuerzo"
+ },
+ "ru-paseo": {
+  "arasaac": 8649,
+  "keyword": "pasear"
+ },
+ "ru-pijama": {
+  "arasaac": 2522,
+  "keyword": "pijama"
+ },
+ "ru-recreo": {
+  "arasaac": 6204,
+  "keyword": "recreo"
+ },
+ "ru-tarea": {
+  "arasaac": 11228,
+  "keyword": "deberes"
+ },
+ "ru-tele": {
+  "arasaac": 2782,
+  "keyword": "ver la televisión"
+ },
+ "ru-terapia": {
+  "arasaac": 2454,
+  "keyword": "logopeda"
+ },
+ "s-aburrido": {
+  "arasaac": 2245,
+  "keyword": "aburrido"
+ },
+ "s-asustado": {
+  "arasaac": 2261,
+  "keyword": "asustado"
+ },
+ "s-calor": {
+  "arasaac": 35561,
+  "keyword": "calor"
+ },
+ "s-cansado": {
+  "arasaac": 2314,
+  "keyword": "cansado"
+ },
+ "s-enfermo": {
+  "arasaac": 7040,
+  "keyword": "enfermo"
+ },
+ "s-enojado": {
+  "arasaac": 2374,
+  "keyword": "enfadado"
+ },
+ "s-feliz": {
+  "arasaac": 3245,
+  "keyword": "contento"
+ },
+ "s-frio": {
+  "arasaac": 4652,
+  "keyword": "frío"
+ },
+ "s-hambre": {
+  "arasaac": 35559,
+  "keyword": "hambre"
+ },
+ "s-nervioso": {
+  "arasaac": 11312,
+  "keyword": "nervios"
+ },
+ "s-sed": {
+  "arasaac": 7273,
+  "keyword": "sediento"
+ },
+ "s-sorprendido": {
+  "arasaac": 2574,
+  "keyword": "sorprendido"
+ },
+ "s-tranquilo": {
+  "arasaac": 31310,
+  "keyword": "tranquilo"
+ },
+ "s-triste": {
+  "arasaac": 2606,
+  "keyword": "triste"
+ }
+}
