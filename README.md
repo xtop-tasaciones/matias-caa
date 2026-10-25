@@ -17,20 +17,27 @@ Abre la dirección una vez con internet. Después funciona sin conexión.
 
 - **Modo Niño:** tocar una ficha la dice en voz alta y la agrega a la tira de arriba. “Decir” lee la frase completa; “Borrar” quita la última; “Todo” limpia la frase.
 - **🏠 Inicio** siempre está en el mismo lugar para volver.
-- **Barra de abajo:** Quiero, Ayuda, Baño, Agua, Me duele, Basta, Sí, No, Más, Terminé. Siempre visible.
+- **Inicio:** pocos menús grandes (Familia, Comida, Lugares, Intereses), cada uno con su color PECS.
+- **Barra de abajo:** Baño, Agua, Ayuda, Sí, No y un “Me duele” pequeño. Siempre visible.
 - **Modo Padres:** mantener presionado el engranaje ⚙ (arriba a la derecha) 3 segundos y resolver la suma (o el PIN si lo configuras).
 
 ## Modo Padres
 
+- **🧩 Elegir menús:** marca qué menús, palabras y botones de abajo ve este niño. Lo desmarcado queda guardado y escondido (útil para compañeros o para la terapeuta).
+- **📥 Importar pictogramas:** elige muchas imágenes a la vez (o arrastra una carpeta en la Mac), escribe el nombre de cada una y elige a qué menú va. Si las imágenes están en carpetas con el nombre del menú (“Comida”, “Lugares”), se ponen solas. “➕ Menú nuevo…” crea un menú en el Inicio.
 - Tocar una ficha → editarla (foto, texto, voz, color, posición, ocultar, duplicar, eliminar).
 - Arrastrar una ficha → moverla. Si sueltas sobre otra, intercambian lugar.
 - Tocar un espacio con “+” → crear ficha ahí. En carpetas, el botón “Abrir ›” entra a la carpeta.
 - **Foto propia** (por ejemplo, Plaza Vea): Nueva ficha → “Tomar foto” o “Galería / archivo”. En la Mac puedes arrastrar la foto a la ficha.
 - **Voz de mamá o papá:** en la ficha, “Grabar voz” (hasta 10 segundos).
-- **ARASAAC:** el botón “🖼️ ARASAAC” cambia todos los emojis por pictogramas ARASAAC (necesita internet una sola vez). En cada ficha también puedes “Buscar en ARASAAC”.
+- **ARASAAC:** las fichas ya traen pictogramas ARASAAC en blanco y negro (funcionan sin internet). En Ajustes se pueden poner a color. En cada ficha puedes “Buscar en ARASAAC” otro dibujo.
 - **Agenda:** carpeta Agenda → “Editar agenda”. Él toca cada actividad al terminarla (queda gris con ✓). Se desmarca sola cada día. Pestaña “Primero / Después”.
 - **Elegir:** botón “🤔 Elegir” → escribe la pregunta y elige de 2 a 4 fichas.
 - **Registro:** palabras más usadas, frases de 2 o más palabras y uso por día. “Exportar para la terapeuta” crea un archivo para enviar.
+
+## Actualizaciones
+
+Las mejoras llegan solas: basta con cerrar y volver a abrir la app con internet. Para forzarlo: Modo Padres → ℹ️ Acerca de → “🔄 Buscar actualización”. Tus fichas y fotos no se borran.
 
 ## Pasar el tablero de la Mac a la tablet o al celular
 
