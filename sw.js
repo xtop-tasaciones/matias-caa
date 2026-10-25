@@ -1,5 +1,5 @@
 // Service worker: guarda la app completa para usarla sin internet.
-const VERSION = 'matias-v8';
+const VERSION = 'matias-v9';
 const APP = [
   './', './index.html', './manifest.webmanifest', './css/app.css',
   './js/app.js', './js/db.js', './js/vocab.js', './js/speech.js', './js/ui.js',
@@ -18,7 +18,7 @@ self.addEventListener('install', e => {
         await c.put('./pictos/index.json', r.clone());
         const ids = Object.keys(await r.json());
         const urls = ids.flatMap(id => [`./pictos/bn/${id}.png`, `./pictos/color/${id}.png`]);
-        for (let i = 0; i < urls.length; i += 20) await Promise.allSettled(urls.slice(i, i + 20).map(u => c.add(u)));
+        for (let i = 0; i < urls.length; i += 20) await Promise.allSettled(urls.slice(i, i + 20).map(u => c.add(new Request(u, { cache: 'reload' }))));
       }
     } catch (err) {}
   }).then(() => self.skipWaiting()));

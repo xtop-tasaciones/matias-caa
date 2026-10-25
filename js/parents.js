@@ -720,7 +720,7 @@ async function resetAll() {
 }
 
 // ---------- Actualizaciones ----------
-export const APP_VERSION = '1.4';
+export const APP_VERSION = '1.5';
 async function checkUpdate() {
   if (!navigator.onLine) { toast('Necesitas internet para buscar actualizaciones'); return; }
   toast('Buscando actualización…');
