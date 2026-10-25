@@ -26,7 +26,8 @@
  },
  "a-cargame": {
   "arasaac": 38632,
-  "keyword": "jumping jacks",
+  "fixed": 29752,
+  "keyword": "aupar",
   "v": 2
  },
  "a-correr": {
@@ -131,7 +132,8 @@
  },
  "b-te": {
   "arasaac": 7284,
-  "keyword": "tres en raya",
+  "fixed": 2429,
+  "keyword": "infusión",
   "v": 2
  },
  "body-barriga": {
@@ -426,6 +428,7 @@
  },
  "co-mango": {
   "arasaac": 10256,
+  "fixed": 16813,
   "keyword": "mango",
   "v": 2
  },
@@ -586,7 +589,8 @@
  },
  "h-manos": {
   "arasaac": 10384,
-  "keyword": "educación física",
+  "fixed": 36525,
+  "keyword": "echar jabón",
   "v": 2
  },
  "h-nariz": {
