@@ -1,14 +1,26 @@
 // Service worker: guarda la app completa para usarla sin internet.
-const VERSION = 'matias-v4';
+const VERSION = 'matias-v7';
 const APP = [
   './', './index.html', './manifest.webmanifest', './css/app.css',
   './js/app.js', './js/db.js', './js/vocab.js', './js/speech.js', './js/ui.js',
-  './js/special.js', './js/parents.js', './js/log.js',
+  './js/special.js', './js/parents.js', './js/log.js', './js/icons.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(APP)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(VERSION).then(async c => {
+    await c.addAll(APP.map(u => new Request(u, { cache: 'reload' })));
+    // Pictogramas ARASAAC incluidos: se guardan todos para usarlos sin internet
+    try {
+      const r = await fetch('./pictos/index.json', { cache: 'no-cache' });
+      if (r.ok) {
+        await c.put('./pictos/index.json', r.clone());
+        const ids = Object.keys(await r.json());
+        const urls = ids.flatMap(id => [`./pictos/bn/${id}.png`, `./pictos/color/${id}.png`]);
+        for (let i = 0; i < urls.length; i += 20) await Promise.allSettled(urls.slice(i, i + 20).map(u => c.add(u)));
+      }
+    } catch (err) {}
+  }).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -21,7 +33,7 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   // Pictogramas ARASAAC: primero la caché, así funcionan sin conexión
-  if (url.hostname === 'static.arasaac.org') {
+  if (url.hostname === 'static.arasaac.org' || (url.hostname === 'api.arasaac.org' && /\/pictograms\/\d+/.test(url.pathname))) {
     e.respondWith(caches.open('arasaac').then(async c => {
       const hit = await c.match(req.url);
       if (hit) return hit;

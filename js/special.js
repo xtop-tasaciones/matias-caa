@@ -1,5 +1,5 @@
 // Tableros especiales: ¿Dónde te duele?, Agenda visual (y Primero/Después), Elegir entre opciones.
-import { S, cardEl, bindActivate, addToPhrase, renderMain, saveSchedule, saveChoice, activateCard } from './app.js';
+import { S, PICTOS, cardEl, bindActivate, addToPhrase, renderMain, saveSchedule, saveChoice, activateCard } from './app.js';
 import { BODY_PARTS } from './vocab.js';
 import * as voice from './speech.js';
 import { h, modal, toast } from './ui.js';
@@ -39,7 +39,7 @@ function renderBody(main) {
   const say = (part) => {
     const text = `Me duele ${part.art} ${part.label}`;
     voice.speak(text);
-    addToPhrase({ label: text, color: 'urgente', emoji: part.emoji });
+    addToPhrase({ label: text, color: 'urgente', emoji: part.emoji, image: PICTOS['body-' + part.id] ? { kind: 'picto', id: 'body-' + part.id } : null });
     logEvent({ kind: 'card', label: text, board: '¿Dónde te duele?' });
     fig.querySelectorAll('[data-part]').forEach(g => g.classList.toggle('hurt', g.dataset.part === part.id));
     parts.querySelectorAll('.card').forEach(c => c.classList.toggle('chosen', c.dataset.part === part.id));
@@ -49,7 +49,7 @@ function renderBody(main) {
     if (part) bindActivate(g, () => say(part));
   });
   for (const part of BODY_PARTS) {
-    const el = cardEl({ label: part.label, emoji: part.emoji, color: 'urgente' }, 'part');
+    const el = cardEl({ label: part.label, emoji: part.emoji, color: 'urgente', image: PICTOS['body-' + part.id] ? { kind: 'picto', id: 'body-' + part.id } : null }, 'part');
     el.dataset.part = part.id;
     bindActivate(el, () => say(part));
     parts.append(el);

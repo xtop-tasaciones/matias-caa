@@ -6,6 +6,7 @@ import { h, $, toast, today } from './ui.js';
 import { renderSpecial } from './special.js';
 import * as parents from './parents.js';
 import { logEvent } from './log.js';
+import { iconSVG } from './icons.js';
 
 export const COLORS = {
   persona: { name: 'Personas', hex: '#E5B300' },
@@ -37,6 +38,8 @@ export const DEFAULT_SETTINGS = {
   quickBar: true,
   logEnabled: true,
   wakeLock: false,
+  neutral: true,
+  arasaacColor: false,
 };
 
 export const S = {
@@ -111,6 +114,7 @@ export function imgSrc(card) {
   if (!card || !card.image) return null;
   if (card.image.kind === 'media') return db.mediaURLSync(card.image.id);
   if (card.image.kind === 'url') return card.image.url;
+  if (card.image.kind === 'picto') return `pictos/${S.settings.arasaacColor ? 'color' : 'bn'}/${card.image.id}.png`;
   return null;
 }
 
@@ -133,6 +137,7 @@ export function applySettings() {
   root.classList.toggle('dark', dark);
   root.dataset.fs = s.fontSize;
   root.classList.toggle('no-text', !s.showText);
+  root.classList.toggle('neutral', !!s.neutral);
   root.style.setProperty('--cols', s.cols);
   root.style.setProperty('--rows', s.rows);
   voice.configure(s);
@@ -151,6 +156,8 @@ async function wakeLock() {
 // ---------- Elementos de ficha ----------
 export function picEl(card, cls = 'pic') {
   const src = imgSrc(card);
+  const svg = !src && card.icon ? iconSVG(card.icon) : null;
+  if (svg) return h('div', { class: cls + ' has-icon', html: svg });
   return h('div', { class: cls },
     src ? h('img', { src, alt: '', draggable: 'false', loading: 'lazy' })
       : h('span', { class: 'emoji' }, card.emoji || (card.label || '?').slice(0, 1).toUpperCase()));
@@ -216,7 +223,7 @@ export function activateCard(card, boardName) {
   }
   voice.sayCard(card);
   const toBody = card.link && S.boards.get(card.link)?.special === 'body';
-  if (S.settings.addToPhrase && !toBody) addToPhrase({ label: card.label, cardId: card.id, color: card.color, emoji: card.emoji, image: card.image });
+  if (S.settings.addToPhrase && !toBody) addToPhrase({ label: card.label, cardId: card.id, color: card.color, emoji: card.emoji, image: card.image, icon: card.icon });
   logEvent({ kind: 'card', label: card.label, cardId: card.id, board: boardName || S.boards.get(card.boardId)?.name || '' });
   if (card.link && S.boards.has(card.link)) openBoard(card.link);
 }
@@ -385,7 +392,7 @@ export function renderQuick() {
   q.style.setProperty('--qn', count);
   q.style.setProperty('--qhalf', Math.ceil(count / 2));
   for (const card of cards) {
-    const el = cardEl(card, 'qcard' + (card.hidden ? ' is-hidden' : ''));
+    const el = cardEl(card, 'qcard' + (card.hidden ? ' is-hidden' : '') + (card.small ? ' small' : ''));
     if (S.parent) el.addEventListener('click', () => parents.editCard(card));
     else bindActivate(el, () => activateCard(card, 'Barra rápida'));
     q.append(el);
@@ -452,6 +459,42 @@ async function migrateColors() {
   await db.setKV('colorVersion', 2);
 }
 
+// Inicio con 4 menús, barra de 5 urgentes + "Me duele" pequeño, pictogramas planos
+async function migrateV3() {
+  if ((await db.getKV('layoutVersion', 1)) >= 3) return;
+  const home = S.boards.get('home');
+  if (home) await saveBoard({ ...home, cols: 2, rows: 2 });
+  const icons = { 'f-personas': 'familia', 'f-comida': 'comida', 'f-lugares': 'lugares', 'f-juguetes': 'intereses', 'f-cuerpo': 'duele',
+    'q-bano': 'bano', 'q-agua': 'agua', 'q-ayuda': 'ayuda', 'q-si': 'si', 'q-no': 'no', 'q-duele': 'duele' };
+  const homeOrder = ['f-personas', 'f-comida', 'f-lugares', 'f-juguetes'];
+  const others = cardsOf('home').filter(c => !homeOrder.includes(c.id)).sort((a, b) => a.pos - b.pos);
+  let p = 4;
+  for (const c of others) await saveCard({ ...c, pos: p++, hidden: true });
+  for (const [i, id] of homeOrder.entries()) { const c = S.cards.get(id); if (c && c.boardId === 'home') await saveCard({ ...c, pos: i, hidden: false }); }
+  const quickOrder = ['q-bano', 'q-agua', 'q-ayuda', 'q-si', 'q-no', 'q-duele'];
+  const qOthers = cardsOf('quick').filter(c => !quickOrder.includes(c.id)).sort((a, b) => a.pos - b.pos);
+  p = quickOrder.length;
+  for (const c of qOthers) await saveCard({ ...c, pos: p++, hidden: true });
+  for (const [i, id] of quickOrder.entries()) { const c = S.cards.get(id); if (c && c.boardId === 'quick') await saveCard({ ...c, pos: i, hidden: false, small: id === 'q-duele' }); }
+  for (const [id, icon] of Object.entries(icons)) { const c = S.cards.get(id); if (c && !c.image) await saveCard({ ...c, icon }); }
+  await db.setKV('layoutVersion', 3);
+}
+
+// Pictogramas ARASAAC incluidos en la app (carpeta pictos/)
+export let PICTOS = {};
+async function loadPictos() {
+  try {
+    const r = await fetch('pictos/index.json', { cache: 'no-cache' });
+    if (r.ok) PICTOS = await r.json();
+  } catch (e) {}
+  if (!Object.keys(PICTOS).length) return;
+  if ((await db.getKV('pictoVersion', 0)) >= 1) return;
+  for (const c of S.cards.values()) {
+    if (!c.image && PICTOS[c.id]) await saveCard({ ...c, image: { kind: 'picto', id: c.id } });
+  }
+  await db.setKV('pictoVersion', 1);
+}
+
 // ---------- Inicio ----------
 async function init() {
   try {
@@ -464,6 +507,8 @@ async function init() {
   }
   await migrateLayout();
   await migrateColors();
+  await migrateV3();
+  await loadPictos();
   checkScheduleDay();
   applySettings();
   render();

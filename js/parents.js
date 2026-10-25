@@ -10,8 +10,8 @@ import { openLog } from './log.js';
 import { editChoice } from './special.js';
 
 const ARASAAC_API = 'https://api.arasaac.org/v1/pictograms/es';
-const arasaacImg = id => `https://static.arasaac.org/pictograms/${id}/${id}_500.png`;
-const arasaacThumb = id => `https://static.arasaac.org/pictograms/${id}/${id}_300.png`;
+const arasaacImg = id => S.settings.arasaacColor ? `https://static.arasaac.org/pictograms/${id}/${id}_500.png` : `https://api.arasaac.org/v1/pictograms/${id}?color=false&resolution=500&download=false`;
+const arasaacThumb = id => S.settings.arasaacColor ? `https://static.arasaac.org/pictograms/${id}/${id}_300.png` : `https://api.arasaac.org/v1/pictograms/${id}?color=false&resolution=500&download=false`;
 
 // ---------- Entrada protegida ----------
 export function gateButton() {
@@ -55,6 +55,7 @@ export function toolbar() {
   return h('div', { class: 'ptoolbar' },
     h('span', { class: 'pbadge' }, '🔧 Modo Padres'),
     b('➕ Nueva ficha', () => newCard(S.boards.get(S.board)?.special ? 'home' : S.board, null)),
+    b('🧩 Elegir menús', openMenuPicker),
     b('⚙️ Ajustes', openSettings),
     b('🔲 Tamaño de esta pantalla', openBoardGrid),
     b('💾 Respaldo', openBackup),
@@ -181,13 +182,13 @@ export function editCard(card) {
   preview.addEventListener('dragleave', () => preview.classList.remove('drop'));
   preview.addEventListener('drop', e => { e.preventDefault(); preview.classList.remove('drop'); useFile(e.dataTransfer.files[0]); });
   const emojiIn = h('input', { type: 'text', value: d.emoji || '', placeholder: '🙂', class: 'emoji-in', maxlength: '8' });
-  emojiIn.oninput = () => { d.emoji = emojiIn.value.trim(); drawPreview(); };
+  emojiIn.oninput = () => { d.emoji = emojiIn.value.trim(); d.icon = null; drawPreview(); };
 
   const imgBtns = h('div', { class: 'row wrap' },
     h('button', { class: 'btn', onclick: () => fileCam.click() }, '📷 Tomar foto'),
     h('button', { class: 'btn', onclick: () => fileGal.click() }, '🖼️ Galería / archivo'),
     h('button', { class: 'btn', onclick: () => searchArasaac(labelIn.value || d.label, img => { d.image = img; drawPreview(); }) }, '🔎 Buscar en ARASAAC'),
-    h('button', { class: 'btn', onclick: () => { d.image = null; drawPreview(); } }, '🗑 Quitar imagen'),
+    h('button', { class: 'btn', onclick: () => { d.image = null; d.icon = null; drawPreview(); } }, '🗑 Quitar imagen'),
     fileCam, fileGal);
 
   // Textos
@@ -474,7 +475,7 @@ function searchArasaac(initial, onPick) {
 function openArasaacBulk() {
   let stop = false;
   const m = modal('Pictogramas ARASAAC', { wide: true, onClose: () => { stop = true; } });
-  const pending = [...S.cards.values()].filter(c => !c.image);
+  const pending = [...S.cards.values()].filter(c => !c.image && !c.icon);
   const status = h('p', { class: 'muted' });
   const bar = h('div', { class: 'progress' }, h('i'));
   const start = h('button', { class: 'btn primary' }, `Poner pictogramas a ${pending.length} fichas`);
@@ -509,9 +510,53 @@ function openArasaacBulk() {
     render();
   };
   m.body.append(
-    h('p', {}, 'Esto reemplaza los emojis del vocabulario por pictogramas de ARASAAC (los mismos que se usan en muchos colegios). Necesita internet solo esta vez; después quedan guardados en el dispositivo.'),
+    h('p', {}, 'Esto reemplaza los emojis del vocabulario por pictogramas de ARASAAC (los mismos que se usan en muchos colegios), en blanco y negro para que sean neutros (se puede cambiar a color en Ajustes). Necesita internet solo esta vez; después quedan guardados en el dispositivo.'),
     h('p', { class: 'muted small' }, 'Las fichas que ya tienen foto o imagen no se tocan. Puedes elegir otro pictograma para cualquier ficha desde su editor.'),
     start, bar, status);
+}
+
+// ---------- Elegir qué menús y botones ve cada niño ----------
+function autoGrid(n) {
+  for (const [c, r] of [[2, 2], [3, 2], [3, 3], [4, 3], [4, 4], [5, 4], [6, 5]]) if (n <= c * r) return [c, r];
+  return [8, 5];
+}
+
+async function setVisible(boardId, card, visible) {
+  const list = cardsOf(boardId);
+  const shown = list.filter(c => !c.hidden && c.id !== card.id);
+  const hiddenOnes = list.filter(c => c.hidden && c.id !== card.id);
+  if (visible) shown.push(card); else hiddenOnes.unshift(card);
+  let p = 0;
+  for (const c of shown) await saveCard({ ...c, pos: p++, hidden: false });
+  if (boardId === 'home') {
+    const [cols, rows] = autoGrid(shown.length);
+    await saveBoard({ ...S.boards.get('home'), cols, rows });
+    p = Math.max(p, cols * rows);
+  }
+  for (const c of hiddenOnes) await saveCard({ ...c, pos: p++, hidden: true });
+}
+
+export function openMenuPicker() {
+  const m = modal('Elegir menús y botones', { wide: true, onClose: () => { S.board = 'home'; S.page = 0; render(); } });
+  const section = (title, help, boardId, filter) => {
+    const box = h('div', { class: 'pick-list' });
+    const draw = () => {
+      box.innerHTML = '';
+      for (const c of cardsOf(boardId).filter(filter).sort((a, b) => a.label.localeCompare(b.label, 'es'))) {
+        const chk = h('input', { type: 'checkbox', checked: !c.hidden });
+        chk.onchange = async () => { await setVisible(boardId, S.cards.get(c.id), chk.checked); draw(); };
+        box.append(h('label', { class: 'pick-item' + (c.hidden ? '' : ' on') }, chk, cardEl(c, 'tiny'), h('span', {}, c.label)));
+      }
+    };
+    draw();
+    return h('section', {}, h('h3', {}, title), h('p', { class: 'muted small' }, help), box);
+  };
+  m.body.append(
+    h('p', {}, 'Marca lo que este niño necesita ver. Lo que no está marcado queda guardado y escondido; se puede volver a marcar cuando quieras. Los nuevos aparecen al final, sin mover los que ya conoce.'),
+    section('Menús del Inicio', 'Carpetas grandes de la pantalla principal. El tamaño se ajusta solo según cuántas marques.', 'home', c => c.type === 'folder'),
+    section('Palabras sueltas en el Inicio', 'Palabras de uso frecuente (yo, quiero, más…). Recomendado solo cuando ya maneja los menús.', 'home', c => c.type !== 'folder'),
+    section('Barra de abajo (urgencias)', 'Botones que se ven siempre, en todas las pantallas.', 'quick', () => true),
+  );
 }
 
 // ---------- Cuadrícula propia de un tablero ----------
@@ -577,7 +622,10 @@ function openSettings() {
       presets,
       h('div', { class: 'row' }, 'Columnas', sel('cols', nums(10)), 'Filas', sel('rows', nums(8)))),
     h('section', {}, h('h3', {}, '🔤 Texto y apariencia'),
+      h('button', { class: 'btn', onclick: () => { m.close(); openMenuPicker(); } }, '🧩 Elegir menús y botones que ve el niño'),
       chk('showText', 'Mostrar el texto debajo de la imagen'),
+      chk('neutral', 'Dibujos neutros: emojis en gris, sin colores llamativos'),
+      chk('arasaacColor', 'Pictogramas ARASAAC a color (si no, en blanco y negro)'),
       h('label', { class: 'field' }, h('span', {}, 'Tamaño de letra'), sel('fontSize', [['s', 'Pequeña'], ['m', 'Mediana'], ['l', 'Grande'], ['xl', 'Muy grande']])),
       h('label', { class: 'field' }, h('span', {}, 'Tema'), sel('theme', [['light', 'Claro'], ['dark', 'Oscuro suave'], ['auto', 'Automático']]))),
     h('section', {}, h('h3', {}, '✋ Toques'),
@@ -669,6 +717,18 @@ async function resetAll() {
   location.reload();
 }
 
+// ---------- Actualizaciones ----------
+export const APP_VERSION = '1.3';
+async function checkUpdate() {
+  if (!navigator.onLine) { toast('Necesitas internet para buscar actualizaciones'); return; }
+  toast('Buscando actualización…');
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration();
+    if (reg) await reg.update();
+  } catch (e) {}
+  setTimeout(() => location.reload(), 2500);
+}
+
 // ---------- Bloqueo y Acerca de ----------
 function openLockHelp() {
   const m = modal('Que no salga de la app', { wide: true });
@@ -701,6 +761,7 @@ function openAbout() {
     h('p', {}, '🖼️ Pictogramas: los símbolos pictográficos utilizados son propiedad del Gobierno de Aragón y han sido creados por Sergio Palao para ARASAAC (', h('a', { href: 'https://arasaac.org', target: '_blank', rel: 'noopener' }, 'arasaac.org'), '), que los distribuye bajo Licencia Creative Commons BY-NC-SA.'),
     h('p', {}, '😀 Los dibujos iniciales son los emojis del propio equipo, por eso pueden verse un poco distintos en iPhone, Android y Mac.'),
     h('p', { class: 'muted small' }, 'Colores de borde (código Fitzgerald): amarillo personas, verde acciones, naranja cosas, azul descriptivos, morado lugares, rosa social, rojo negación/urgente.'),
-    h('p', { class: 'muted small' }, 'Versión 1.0'),
+    h('p', { class: 'muted small' }, 'Versión ' + APP_VERSION),
+    h('button', { class: 'btn primary', onclick: checkUpdate }, '🔄 Buscar actualización'),
   );
 }

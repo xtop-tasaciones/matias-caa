@@ -70,3 +70,41 @@ for card_id, qs in queries.items():
     print(card_id, pid, kw)
 
 json.dump(index, open(index_path, 'w', encoding='utf-8'), ensure_ascii=False, indent=1, sort_keys=True)
+
+# Hoja de candidatos para revisar a ojo los pictogramas dudosos (tools/candidates.txt: "id: búsqueda, búsqueda")
+if os.path.exists('tools/candidates.txt'):
+    import unicodedata
+    from PIL import ImageDraw
+    ascii_ = lambda s: unicodedata.normalize('NFKD', s).encode('ascii', 'ignore').decode()
+    rows = []
+    for line in open('tools/candidates.txt', encoding='utf-8'):
+        if ':' not in line:
+            continue
+        cid, qs = line.split(':', 1)
+        seen, cands = set(), []
+        for q in [x.strip() for x in qs.split(',') if x.strip()]:
+            try:
+                res = json.loads(get(f"{API}/es/search/{urllib.parse.quote(q)}"))
+            except Exception:
+                res = []
+            for r in res[:6]:
+                if r['_id'] not in seen and len(cands) < 14:
+                    seen.add(r['_id'])
+                    cands.append((r['_id'], (r.get('keywords') or [{}])[0].get('keyword', '')))
+        rows.append((cid.strip(), cands))
+    W, H = 130, 150
+    sheet = Image.new('RGB', (W * 15, H * max(1, len(rows))), 'white')
+    d = ImageDraw.Draw(sheet)
+    for y, (cid, cands) in enumerate(rows):
+        d.text((4, y * H + 60), cid, fill='red')
+        for x, (pid, kw) in enumerate(cands, 1):
+            try:
+                im = Image.open(io.BytesIO(get(f'https://static.arasaac.org/pictograms/{pid}/{pid}_300.png'))).convert('RGBA')
+                im.thumbnail((120, 120))
+                bg = Image.new('RGB', im.size, 'white'); bg.paste(im, mask=im)
+                sheet.paste(bg, (x * W + 5, y * H + 2))
+            except Exception:
+                pass
+            d.text((x * W + 5, y * H + 124), str(pid), fill='blue')
+            d.text((x * W + 5, y * H + 136), ascii_(kw)[:20], fill='black')
+    sheet.save('tools/candidates.png', optimize=True)

@@ -2,7 +2,7 @@ name: Descargar pictogramas ARASAAC
 on:
   push:
     branches: [main]
-    paths: ['tools/pictos-queries.json', 'tools/fetch_pictos.py', 'pictos/index.json']
+    paths: ['tools/pictos-queries.json', 'tools/fetch_pictos.py', 'pictos/index.json', 'tools/candidates.txt']
   workflow_dispatch:
 permissions:
   contents: write
@@ -20,5 +20,5 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add pictos
+          git add pictos tools/candidates.png
           git diff --cached --quiet || (git commit -m "Pictogramas ARASAAC descargados" && git push)
