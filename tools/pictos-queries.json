@@ -1,0 +1,743 @@
+{
+ "q-quiero": [
+  "querer"
+ ],
+ "q-ayuda": [
+  "ayudar",
+  "ayuda"
+ ],
+ "q-bano": [
+  "ir al baño",
+  "váter"
+ ],
+ "q-agua": [
+  "agua"
+ ],
+ "q-duele": [
+  "dolor",
+  "doler"
+ ],
+ "q-para": [
+  "parar",
+  "basta"
+ ],
+ "q-si": [
+  "sí"
+ ],
+ "q-no": [
+  "no"
+ ],
+ "q-mas": [
+  "más"
+ ],
+ "q-termine": [
+  "terminar"
+ ],
+ "f-personas": [
+  "familia"
+ ],
+ "f-comida": [
+  "comida"
+ ],
+ "f-bebidas": [
+  "bebida"
+ ],
+ "f-juguetes": [
+  "juguetes",
+  "jugar"
+ ],
+ "f-lugares": [
+  "lugar",
+  "ciudad"
+ ],
+ "f-acciones": [
+  "acción",
+  "hacer"
+ ],
+ "f-sentimientos": [
+  "emociones",
+  "sentimientos"
+ ],
+ "f-cuerpo": [
+  "dolor",
+  "doler"
+ ],
+ "f-ropa": [
+  "ropa"
+ ],
+ "f-higiene": [
+  "higiene",
+  "aseo"
+ ],
+ "f-rutinas": [
+  "rutina",
+  "horario"
+ ],
+ "f-agenda": [
+  "agenda"
+ ],
+ "f-elegir": [
+  "elegir"
+ ],
+ "c-hola": [
+  "hola"
+ ],
+ "c-chau": [
+  "adiós",
+  "chau"
+ ],
+ "c-gracias": [
+  "gracias"
+ ],
+ "c-yo": [
+  "yo"
+ ],
+ "c-tu": [
+  "tú"
+ ],
+ "c-megusta": [
+  "gustar",
+  "me gusta"
+ ],
+ "c-nomegusta": [
+  "no gustar",
+  "no me gusta"
+ ],
+ "c-noquiero": [
+  "no querer",
+  "no quiero"
+ ],
+ "c-otro": [
+  "otro"
+ ],
+ "c-aqui": [
+  "aquí"
+ ],
+ "c-alla": [
+  "allá"
+ ],
+ "c-ir": [
+  "ir"
+ ],
+ "c-venir": [
+  "venir"
+ ],
+ "c-comer": [
+  "comer"
+ ],
+ "c-tomar": [
+  "beber",
+  "tomar"
+ ],
+ "c-jugar": [
+  "jugar"
+ ],
+ "c-ver": [
+  "ver"
+ ],
+ "c-abrir": [
+  "abrir"
+ ],
+ "c-cerrar": [
+  "cerrar"
+ ],
+ "c-poner": [
+  "poner"
+ ],
+ "c-sacar": [
+  "sacar"
+ ],
+ "c-dar": [
+  "dar"
+ ],
+ "c-arriba": [
+  "arriba"
+ ],
+ "c-abajo": [
+  "abajo"
+ ],
+ "c-grande": [
+  "grande"
+ ],
+ "c-pequeno": [
+  "pequeño"
+ ],
+ "c-porfavor": [
+  "por favor"
+ ],
+ "p-mama": [
+  "mamá"
+ ],
+ "p-papa": [
+  "papá"
+ ],
+ "p-matias": [
+  "niño"
+ ],
+ "p-hermano": [
+  "hermano"
+ ],
+ "p-hermana": [
+  "hermana"
+ ],
+ "p-abuela": [
+  "abuela"
+ ],
+ "p-abuelo": [
+  "abuelo"
+ ],
+ "p-tia": [
+  "tía"
+ ],
+ "p-tio": [
+  "tío"
+ ],
+ "p-primo": [
+  "primo"
+ ],
+ "p-bebe": [
+  "bebé"
+ ],
+ "p-profesora": [
+  "profesora"
+ ],
+ "p-terapeuta": [
+  "terapeuta"
+ ],
+ "p-doctor": [
+  "médico",
+  "doctor"
+ ],
+ "p-amigo": [
+  "amigo"
+ ],
+ "co-pan": [
+  "pan"
+ ],
+ "co-arroz": [
+  "arroz"
+ ],
+ "co-pollo": [
+  "pollo"
+ ],
+ "co-papa": [
+  "patata",
+  "papa"
+ ],
+ "co-huevo": [
+  "huevo"
+ ],
+ "co-fideos": [
+  "espaguetis",
+  "fideos"
+ ],
+ "co-sopa": [
+  "sopa"
+ ],
+ "co-platano": [
+  "plátano"
+ ],
+ "co-manzana": [
+  "manzana"
+ ],
+ "co-mandarina": [
+  "mandarina"
+ ],
+ "co-uvas": [
+  "uvas"
+ ],
+ "co-mango": [
+  "mango"
+ ],
+ "co-palta": [
+  "aguacate",
+  "palta"
+ ],
+ "co-choclo": [
+  "mazorca",
+  "choclo"
+ ],
+ "co-camote": [
+  "boniato",
+  "camote"
+ ],
+ "co-pescado": [
+  "pescado"
+ ],
+ "co-carne": [
+  "carne"
+ ],
+ "co-lomo": [
+  "carne guisada",
+  "lomo saltado"
+ ],
+ "co-aji": [
+  "guiso",
+  "ají de gallina"
+ ],
+ "co-tamal": [
+  "tamal"
+ ],
+ "co-salchipapa": [
+  "patatas fritas",
+  "salchipapa"
+ ],
+ "co-canchita": [
+  "palomitas",
+  "canchita"
+ ],
+ "co-galleta": [
+  "galleta"
+ ],
+ "co-queso": [
+  "queso"
+ ],
+ "co-yogur": [
+  "yogur"
+ ],
+ "co-cereal": [
+  "cereales",
+  "cereal"
+ ],
+ "co-gelatina": [
+  "gelatina"
+ ],
+ "co-mazamorra": [
+  "postre",
+  "mazamorra"
+ ],
+ "co-helado": [
+  "helado"
+ ],
+ "co-chocolate": [
+  "chocolate"
+ ],
+ "b-agua": [
+  "agua"
+ ],
+ "b-leche": [
+  "leche"
+ ],
+ "b-jugo": [
+  "zumo",
+  "jugo"
+ ],
+ "b-chicha": [
+  "refresco",
+  "chicha morada"
+ ],
+ "b-gaseosa": [
+  "refresco",
+  "gaseosa"
+ ],
+ "b-limonada": [
+  "limonada"
+ ],
+ "b-avena": [
+  "avena"
+ ],
+ "b-emoliente": [
+  "infusión",
+  "emoliente"
+ ],
+ "b-te": [
+  "té"
+ ],
+ "j-pelota": [
+  "pelota"
+ ],
+ "j-carro": [
+  "coche",
+  "carro"
+ ],
+ "j-tren": [
+  "tren"
+ ],
+ "j-bloques": [
+  "construcciones",
+  "bloques"
+ ],
+ "j-peluche": [
+  "peluche"
+ ],
+ "j-dinosaurio": [
+  "dinosaurio"
+ ],
+ "j-burbujas": [
+  "pompas de jabón",
+  "burbujas"
+ ],
+ "j-rompecabezas": [
+  "puzle",
+  "rompecabezas"
+ ],
+ "j-colores": [
+  "ceras",
+  "colores"
+ ],
+ "j-libro": [
+  "libro"
+ ],
+ "j-globo": [
+  "globo"
+ ],
+ "j-musica": [
+  "música"
+ ],
+ "j-tablet": [
+  "tableta",
+  "tablet"
+ ],
+ "j-tele": [
+  "televisión",
+  "tele"
+ ],
+ "j-munieca": [
+  "muñeca"
+ ],
+ "l-casa": [
+  "casa"
+ ],
+ "l-colegio": [
+  "colegio"
+ ],
+ "l-parque": [
+  "parque"
+ ],
+ "l-tienda": [
+  "tienda"
+ ],
+ "l-plazavea": [
+  "supermercado"
+ ],
+ "l-mercado": [
+  "mercado"
+ ],
+ "l-playa": [
+  "playa"
+ ],
+ "l-piscina": [
+  "piscina"
+ ],
+ "l-polleria": [
+  "restaurante",
+  "pollería"
+ ],
+ "l-abuela": [
+  "casa",
+  "casa de la abuela"
+ ],
+ "l-cuarto": [
+  "dormitorio",
+  "mi cuarto"
+ ],
+ "l-cocina": [
+  "cocina"
+ ],
+ "l-bano": [
+  "baño"
+ ],
+ "l-afuera": [
+  "fuera",
+  "afuera"
+ ],
+ "l-terapia": [
+  "logopeda",
+  "terapia"
+ ],
+ "l-hospital": [
+  "hospital"
+ ],
+ "a-dormir": [
+  "dormir"
+ ],
+ "a-sentarse": [
+  "sentarse"
+ ],
+ "a-correr": [
+  "correr"
+ ],
+ "a-saltar": [
+  "saltar"
+ ],
+ "a-caminar": [
+  "caminar"
+ ],
+ "a-abrazar": [
+  "abrazar"
+ ],
+ "a-besar": [
+  "besar"
+ ],
+ "a-cargame": [
+  "coger en brazos",
+  "cárgame"
+ ],
+ "a-cosquillas": [
+  "hacer cosquillas",
+  "cosquillas"
+ ],
+ "a-escuchar": [
+  "escuchar"
+ ],
+ "a-pintar": [
+  "pintar"
+ ],
+ "a-cantar": [
+  "cantar"
+ ],
+ "a-bailar": [
+  "bailar"
+ ],
+ "a-nadar": [
+  "nadar"
+ ],
+ "a-leer": [
+  "leer"
+ ],
+ "a-esperar": [
+  "esperar"
+ ],
+ "a-salir": [
+  "salir"
+ ],
+ "a-lavar": [
+  "lavar"
+ ],
+ "s-feliz": [
+  "contento",
+  "feliz"
+ ],
+ "s-triste": [
+  "triste"
+ ],
+ "s-enojado": [
+  "enfadado",
+  "enojado"
+ ],
+ "s-asustado": [
+  "asustado"
+ ],
+ "s-cansado": [
+  "cansado"
+ ],
+ "s-aburrido": [
+  "aburrido"
+ ],
+ "s-nervioso": [
+  "nervioso"
+ ],
+ "s-tranquilo": [
+  "tranquilo"
+ ],
+ "s-sorprendido": [
+  "sorprendido"
+ ],
+ "s-enfermo": [
+  "enfermo"
+ ],
+ "s-hambre": [
+  "hambre"
+ ],
+ "s-sed": [
+  "sed"
+ ],
+ "s-frio": [
+  "frío"
+ ],
+ "s-calor": [
+  "calor"
+ ],
+ "r-polo": [
+  "camiseta",
+  "polo"
+ ],
+ "r-pantalon": [
+  "pantalón"
+ ],
+ "r-short": [
+  "pantalón corto",
+  "short"
+ ],
+ "r-casaca": [
+  "chaqueta",
+  "casaca"
+ ],
+ "r-chompa": [
+  "jersey",
+  "chompa"
+ ],
+ "r-zapatillas": [
+  "zapatillas"
+ ],
+ "r-zapatos": [
+  "zapatos"
+ ],
+ "r-medias": [
+  "calcetines",
+  "medias"
+ ],
+ "r-gorra": [
+  "gorra"
+ ],
+ "r-calzoncillo": [
+  "calzoncillo"
+ ],
+ "r-pijama": [
+  "pijama"
+ ],
+ "r-panal": [
+  "pañal"
+ ],
+ "h-manos": [
+  "lavarse las manos",
+  "lavarse las manos"
+ ],
+ "h-dientes": [
+  "lavarse los dientes",
+  "cepillarse los dientes"
+ ],
+ "h-banarse": [
+  "bañarse",
+  "bañarse"
+ ],
+ "h-ducha": [
+  "ducha"
+ ],
+ "h-peinarse": [
+  "peinarse"
+ ],
+ "h-papel": [
+  "papel higiénico"
+ ],
+ "h-nariz": [
+  "sonarse",
+  "sonarse la nariz"
+ ],
+ "h-unas": [
+  "cortar las uñas",
+  "cortarse las uñas"
+ ],
+ "h-pelo": [
+  "cortar el pelo",
+  "cortarse el pelo"
+ ],
+ "h-crema": [
+  "crema"
+ ],
+ "h-toalla": [
+  "toalla"
+ ],
+ "ru-despertar": [
+  "despertarse",
+  "despertar"
+ ],
+ "ru-vestirse": [
+  "vestirse"
+ ],
+ "ru-desayunar": [
+  "desayunar"
+ ],
+ "ru-dientes": [
+  "lavarse los dientes",
+  "cepillarse los dientes"
+ ],
+ "ru-colegio": [
+  "ir al colegio",
+  "ir al colegio"
+ ],
+ "ru-lonchera": [
+  "almuerzo",
+  "lonchera"
+ ],
+ "ru-recreo": [
+  "recreo"
+ ],
+ "ru-almorzar": [
+  "comer",
+  "almorzar"
+ ],
+ "ru-terapia": [
+  "logopeda",
+  "terapia"
+ ],
+ "ru-tarea": [
+  "deberes",
+  "tarea"
+ ],
+ "ru-jugar": [
+  "jugar"
+ ],
+ "ru-paseo": [
+  "pasear",
+  "paseo"
+ ],
+ "ru-tele": [
+  "ver la televisión",
+  "ver tele"
+ ],
+ "ru-cenar": [
+  "cenar"
+ ],
+ "ru-banarse": [
+  "bañarse"
+ ],
+ "ru-pijama": [
+  "pijama",
+  "ponerse el pijama"
+ ],
+ "ru-dormir": [
+  "dormir"
+ ],
+ "body-cabeza": [
+  "cabeza"
+ ],
+ "body-ojo": [
+  "ojo"
+ ],
+ "body-oido": [
+  "oído",
+  "oreja"
+ ],
+ "body-nariz": [
+  "nariz"
+ ],
+ "body-boca": [
+  "boca"
+ ],
+ "body-diente": [
+  "diente"
+ ],
+ "body-garganta": [
+  "garganta"
+ ],
+ "body-pecho": [
+  "pecho"
+ ],
+ "body-barriga": [
+  "barriga",
+  "tripa"
+ ],
+ "body-espalda": [
+  "espalda"
+ ],
+ "body-brazo": [
+  "brazo"
+ ],
+ "body-mano": [
+  "mano"
+ ],
+ "body-pierna": [
+  "pierna"
+ ],
+ "body-rodilla": [
+  "rodilla"
+ ],
+ "body-pie": [
+  "pie"
+ ],
+ "body-poto": [
+  "culo",
+  "trasero"
+ ]
+}
