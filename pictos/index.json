@@ -25,7 +25,7 @@
   "v": 2
  },
  "a-cargame": {
-  "arasaac": 38632,
+  "arasaac": 29752,
   "fixed": 29752,
   "keyword": "aupar",
   "v": 2
@@ -131,7 +131,7 @@
   "v": 2
  },
  "b-te": {
-  "arasaac": 7284,
+  "arasaac": 2429,
   "fixed": 2429,
   "keyword": "infusión",
   "v": 2
@@ -427,7 +427,7 @@
   "v": 2
  },
  "co-mango": {
-  "arasaac": 10256,
+  "arasaac": 16813,
   "fixed": 16813,
   "keyword": "mango",
   "v": 2
@@ -588,7 +588,7 @@
   "v": 2
  },
  "h-manos": {
-  "arasaac": 10384,
+  "arasaac": 36525,
   "fixed": 36525,
   "keyword": "echar jabón",
   "v": 2
