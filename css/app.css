@@ -371,3 +371,19 @@ ol li { margin: 6px 0; }
 .pick-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer; opacity: .65; }
 .pick-item.on { opacity: 1; border-color: var(--accent); }
 .pick-item input { width: 22px; height: 22px; flex: none; }
+
+/* Importar pictogramas propios */
+.import-drop { border: 2.5px dashed var(--line); border-radius: 16px; padding: 16px; text-align: center; }
+.import-drop.drop { border-color: var(--accent); background: rgba(0,0,0,.03); }
+.import-drop .big-ico { font-size: 40px; margin: 0; }
+.import-drop .row.center { justify-content: center; }
+.import-head { align-items: center; margin-top: 14px; }
+.field.inline { flex-direction: row; align-items: center; gap: 8px; }
+.import-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+.import-item { display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1.5px solid var(--line); border-radius: 12px; }
+.import-item.off { opacity: .45; }
+.import-item.need { border-color: #E67E22; }
+.import-item input[type=text], .import-item select { width: 100%; padding: 8px; font-size: 15px; border: 1.5px solid var(--line); border-radius: 8px; box-sizing: border-box; background: var(--bg); color: var(--ink); }
+.import-pic { position: relative; display: block; cursor: pointer; }
+.import-pic img { width: 100%; aspect-ratio: 1; object-fit: contain; background: #fff; border-radius: 8px; display: block; }
+.import-pic input { position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; }

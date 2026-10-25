@@ -8,6 +8,7 @@ import * as voice from './speech.js';
 import { h, modal, toast, confirmBox, shareOrDownload, today } from './ui.js';
 import { openLog } from './log.js';
 import { editChoice } from './special.js';
+import { openImport } from './importer.js';
 
 const ARASAAC_API = 'https://api.arasaac.org/v1/pictograms/es';
 const arasaacImg = id => S.settings.arasaacColor ? `https://static.arasaac.org/pictograms/${id}/${id}_500.png` : `https://api.arasaac.org/v1/pictograms/${id}?color=false&resolution=500&download=false`;
@@ -56,6 +57,7 @@ export function toolbar() {
     h('span', { class: 'pbadge' }, '🔧 Modo Padres'),
     b('➕ Nueva ficha', () => newCard(S.boards.get(S.board)?.special ? 'home' : S.board, null)),
     b('🧩 Elegir menús', openMenuPicker),
+    b('📥 Importar pictogramas', openImport),
     b('⚙️ Ajustes', openSettings),
     b('🔲 Tamaño de esta pantalla', openBoardGrid),
     b('💾 Respaldo', openBackup),
@@ -136,7 +138,7 @@ export function newCard(boardId, pos) {
   });
 }
 
-async function resizeImage(file, max = 640) {
+export async function resizeImage(file, max = 640) {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
@@ -521,7 +523,7 @@ function autoGrid(n) {
   return [8, 5];
 }
 
-async function setVisible(boardId, card, visible) {
+export async function setVisible(boardId, card, visible) {
   const list = cardsOf(boardId);
   const shown = list.filter(c => !c.hidden && c.id !== card.id);
   const hiddenOnes = list.filter(c => c.hidden && c.id !== card.id);
@@ -718,7 +720,7 @@ async function resetAll() {
 }
 
 // ---------- Actualizaciones ----------
-export const APP_VERSION = '1.3';
+export const APP_VERSION = '1.4';
 async function checkUpdate() {
   if (!navigator.onLine) { toast('Necesitas internet para buscar actualizaciones'); return; }
   toast('Buscando actualización…');
