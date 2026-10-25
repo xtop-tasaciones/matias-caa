@@ -20,6 +20,7 @@
   --social: #DB5297;
   --urgente: #D6312A;
   --carpeta: #8B7D6B;
+  --lugar: #8E44AD;
   --fs: 18px;
   --gap: 8px;
   --bw: 6px;
@@ -149,6 +150,7 @@ input, textarea, select { -webkit-user-select: text; user-select: text; font: in
 .c-social { --c: var(--social); }
 .c-urgente { --c: var(--urgente); }
 .c-carpeta { --c: var(--carpeta); }
+.c-lugar { --c: var(--lugar); }
 .card .pic { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; container-type: size; padding: 3px; }
 .card .pic img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 .card .emoji { font-size: 44px; font-size: 84cqmin; line-height: 1; pointer-events: none; }
@@ -158,7 +160,7 @@ input, textarea, select { -webkit-user-select: text; user-select: text; font: in
 }
 .card .label.long { font-size: min(calc(var(--fs) * 0.8), 13cqi); }
 .no-text .card .label { display: none; }
-.card.folder { background: color-mix(in srgb, var(--card) 86%, var(--c)); border-style: solid; }
+.card.folder { background: color-mix(in srgb, var(--card) 72%, var(--c)); border-style: solid; }
 .card.folder .tab {
   position: absolute; top: 0; left: 10%; width: 36%; height: 7px; background: var(--c); border-radius: 0 0 6px 6px;
 }
@@ -348,3 +350,4 @@ ol li { margin: 6px 0; }
 }
 .grid.big .card .label { font-size: calc(var(--fs) * 1.5); font-size: min(calc(var(--fs) * 1.6), 13cqi); padding-bottom: 8px; }
 .grid.big .card { --bw: 9px; }
+.tpill { display: inline-block; padding: 4px 18px; border-radius: 999px; border: 4px solid var(--c); background: color-mix(in srgb, #fff 70%, var(--c)); color: #1F2328; }

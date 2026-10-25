@@ -14,6 +14,7 @@ export const COLORS = {
   descriptivo: { name: 'Descriptivos', hex: '#2F78D0' },
   social: { name: 'Social / frases', hex: '#DB5297' },
   urgente: { name: 'Negación / urgente', hex: '#D6312A' },
+  lugar: { name: 'Lugares', hex: '#8E44AD' },
   carpeta: { name: 'Carpeta', hex: '#8B7D6B' },
 };
 
@@ -318,7 +319,9 @@ function renderNav() {
   bindActivate(prev, () => { if (S.page > 0) { S.page--; renderMain(); } });
   bindActivate(next, () => { if (S.page < pages - 1) { S.page++; renderMain(); } });
   const pager = h('div', { class: 'pager' + (pages > 1 ? '' : ' hide') }, prev, info, next);
-  const title = h('div', { class: 'title' }, board ? board.name : '');
+  const title = h('div', { class: 'title' }, h('span', {}, board ? board.name : ''));
+  const owner = [...S.cards.values()].find(c => c.type === 'folder' && c.link === S.board && c.boardId === 'home');
+  if (owner && COLORS[owner.color]) title.firstChild.className = 'tpill c-' + owner.color;
   const gear = parents.gateButton();
   nav.append(home, title, pager, gear);
 }
@@ -435,6 +438,20 @@ async function migrateLayout() {
   await db.setKV('layoutVersion', 2);
 }
 
+// Colores por menú (norma PECS / Fitzgerald)
+async function migrateColors() {
+  if ((await db.getKV('colorVersion', 1)) >= 2) return;
+  const set = { 'f-personas': 'persona', 'f-comida': 'cosa', 'f-lugares': 'lugar', 'f-juguetes': 'accion', 'f-cuerpo': 'urgente',
+    'f-bebidas': 'cosa', 'f-acciones': 'accion', 'f-sentimientos': 'descriptivo', 'f-ropa': 'cosa', 'f-higiene': 'accion',
+    'f-rutinas': 'accion', 'f-agenda': 'social', 'f-elegir': 'social' };
+  for (const [id, color] of Object.entries(set)) {
+    const c = S.cards.get(id);
+    if (c && c.color === 'carpeta') await saveCard({ ...c, color });
+  }
+  for (const c of cardsOf('lugares')) if (c.color === 'cosa' && !c.id.startsWith('c-')) await saveCard({ ...c, color: 'lugar' });
+  await db.setKV('colorVersion', 2);
+}
+
 // ---------- Inicio ----------
 async function init() {
   try {
@@ -446,6 +463,7 @@ async function init() {
     throw e;
   }
   await migrateLayout();
+  await migrateColors();
   checkScheduleDay();
   applySettings();
   render();

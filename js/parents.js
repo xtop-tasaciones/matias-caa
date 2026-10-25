@@ -130,7 +130,7 @@ async function moveCard(card, pos) {
 export function newCard(boardId, pos) {
   if (pos == null) pos = firstFreePos(boardId);
   editCard({
-    id: db.uid('c'), boardId, pos, label: '', speak: '', emoji: '', color: boardId === 'personas' ? 'persona' : 'cosa',
+    id: db.uid('c'), boardId, pos, label: '', speak: '', emoji: '', color: boardId === 'personas' ? 'persona' : boardId === 'lugares' ? 'lugar' : 'cosa',
     type: 'word', link: null, q: '', hidden: false, image: null, audio: null, _new: true,
   });
 }
@@ -700,7 +700,7 @@ function openAbout() {
     h('p', {}, '🔒 Privacidad: no tiene anuncios, ni cuentas, ni envía datos a ningún servidor. Todo (fichas, fotos, voces, registro) se guarda solo en este equipo. Solo se usa internet cuando tú buscas pictogramas en ARASAAC.'),
     h('p', {}, '🖼️ Pictogramas: los símbolos pictográficos utilizados son propiedad del Gobierno de Aragón y han sido creados por Sergio Palao para ARASAAC (', h('a', { href: 'https://arasaac.org', target: '_blank', rel: 'noopener' }, 'arasaac.org'), '), que los distribuye bajo Licencia Creative Commons BY-NC-SA.'),
     h('p', {}, '😀 Los dibujos iniciales son los emojis del propio equipo, por eso pueden verse un poco distintos en iPhone, Android y Mac.'),
-    h('p', { class: 'muted small' }, 'Colores de borde (código Fitzgerald): amarillo personas, verde acciones, naranja cosas, azul descriptivos, rosa social, rojo negación/urgente.'),
+    h('p', { class: 'muted small' }, 'Colores de borde (código Fitzgerald): amarillo personas, verde acciones, naranja cosas, azul descriptivos, morado lugares, rosa social, rojo negación/urgente.'),
     h('p', { class: 'muted small' }, 'Versión 1.0'),
   );
 }
