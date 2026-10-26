@@ -748,5 +748,73 @@
  "body-poto": [
   "culo",
   "trasero"
+ ],
+ "f-colegio": [
+  "colegio",
+  "escuela"
+ ],
+ "es-profesora": [
+  "profesora",
+  "maestra"
+ ],
+ "es-companeros": [
+  "compañeros",
+  "amigos"
+ ],
+ "es-bano": [
+  "inodoro",
+  "váter"
+ ],
+ "es-agua": [
+  "agua"
+ ],
+ "es-ayuda": [
+  "ayudar",
+  "ayuda"
+ ],
+ "es-termine": [
+  "terminar"
+ ],
+ "es-recreo": [
+  "recreo",
+  "patio de recreo"
+ ],
+ "es-lonchera": [
+  "fiambrera",
+  "lonchera"
+ ],
+ "es-jugar": [
+  "jugar"
+ ],
+ "es-descansar": [
+  "descansar"
+ ],
+ "es-casa": [
+  "ir a casa",
+  "casa"
+ ],
+ "es-noquiero": [
+  "no querer",
+  "no quiero"
+ ],
+ "es-pintar": [
+  "pintar"
+ ],
+ "es-cuento": [
+  "cuento",
+  "leer"
+ ],
+ "es-musica": [
+  "música"
+ ],
+ "es-mochila": [
+  "mochila"
+ ],
+ "es-patio": [
+  "patio"
+ ],
+ "es-salon": [
+  "aula",
+  "clase"
  ]
 }

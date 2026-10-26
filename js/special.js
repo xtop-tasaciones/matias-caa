@@ -5,11 +5,13 @@ import * as voice from './speech.js';
 import { h, modal, toast } from './ui.js';
 import { logEvent } from './log.js';
 import { pickCard } from './parents.js';
+import { renderTimerBoard } from './timer.js';
 
 export function renderSpecial(board, main) {
   if (board.special === 'body') return renderBody(main);
   if (board.special === 'schedule') return renderSchedule(main);
   if (board.special === 'choice') return renderChoice(main);
+  if (board.special === 'timer') return renderTimerBoard(main);
 }
 
 // ---------- ¿Dónde te duele? ----------

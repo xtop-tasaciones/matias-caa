@@ -417,3 +417,23 @@ ol li { margin: 6px 0; }
 .outside-list { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
 .outside-note { padding: 6px 10px; margin: 0 var(--gap) 6px;
   border: 1.5px dashed #B26A00; border-radius: 10px; background: #FFF6E5; color: #5A3B00; font-size: 14px; }
+
+/* ---------- Temporizador "Esperar" ---------- */
+.t-disk .t-bg { fill: #F4F1EA; stroke: #CFC8BA; stroke-width: 1.5; }
+.t-disk .t-left { fill: #C9645F; }
+.t-disk .t-dot { fill: #5A5148; }
+.timer-choice .pic.has-icon svg { width: 72%; height: 72%; }
+.timer-overlay { position: fixed; inset: 0; z-index: 150; background: var(--bg, #F3F0E8); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.t-main { display: flex; align-items: center; justify-content: center; gap: 5vmin; width: 100%; height: 100%; }
+.t-disk-wrap { width: min(70vmin, 60vw); aspect-ratio: 1; }
+.t-disk-wrap svg { width: 100%; height: 100%; }
+.t-side { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.t-pic { width: min(28vmin, 220px); aspect-ratio: 1; background: #fff; border: 4px solid var(--line, #D8D2C4); border-radius: 18px; padding: 8px; }
+.t-pic .pic { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.t-pic img { max-width: 100%; max-height: 100%; }
+.t-pic .emoji { font-size: 18vmin; }
+.t-word { font-size: clamp(28px, 6vmin, 56px); font-weight: 800; color: var(--ink, #1F2328); }
+.t-left-text { font-size: clamp(18px, 3.4vmin, 30px); color: #5A5148; min-height: 1.3em; }
+.t-close { position: absolute; top: 12px; right: 12px; font-size: 18px; opacity: .55; }
+.t-back { font-size: 22px; padding: 14px 28px; }
+@media (orientation: portrait) { .t-main { flex-direction: column; } .t-disk-wrap { width: min(80vw, 55vh); } }

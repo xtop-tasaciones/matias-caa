@@ -506,6 +506,101 @@
   "keyword": "yogur",
   "v": 2
  },
+ "es-agua": {
+  "arasaac": 2248,
+  "keyword": "agua",
+  "v": 2
+ },
+ "es-ayuda": {
+  "arasaac": 4570,
+  "keyword": "ayudar",
+  "v": 2
+ },
+ "es-bano": {
+  "arasaac": 2430,
+  "keyword": "váter",
+  "v": 2
+ },
+ "es-casa": {
+  "arasaac": 2317,
+  "fixed": 2317,
+  "keyword": "casa",
+  "v": 2
+ },
+ "es-companeros": {
+  "arasaac": 7062,
+  "keyword": "compañeros",
+  "v": 2
+ },
+ "es-cuento": {
+  "arasaac": 2364,
+  "keyword": "cuento",
+  "v": 2
+ },
+ "es-descansar": {
+  "arasaac": 3299,
+  "keyword": "descansar",
+  "v": 2
+ },
+ "es-jugar": {
+  "arasaac": 2439,
+  "keyword": "jugar",
+  "v": 2
+ },
+ "es-lonchera": {
+  "arasaac": 39457,
+  "fixed": 39457,
+  "keyword": "lonchera",
+  "v": 2
+ },
+ "es-mochila": {
+  "arasaac": 2475,
+  "keyword": "mochila",
+  "v": 2
+ },
+ "es-musica": {
+  "arasaac": 24791,
+  "fixed": 24791,
+  "keyword": "música",
+  "v": 2
+ },
+ "es-noquiero": {
+  "arasaac": 6156,
+  "keyword": "yo no quiero",
+  "v": 2
+ },
+ "es-patio": {
+  "arasaac": 33065,
+  "fixed": 33065,
+  "keyword": "patio",
+  "v": 2
+ },
+ "es-pintar": {
+  "arasaac": 2348,
+  "keyword": "pintar",
+  "v": 2
+ },
+ "es-profesora": {
+  "arasaac": 2456,
+  "keyword": "maestra",
+  "v": 2
+ },
+ "es-recreo": {
+  "arasaac": 33064,
+  "fixed": 33064,
+  "keyword": "recreo",
+  "v": 2
+ },
+ "es-salon": {
+  "arasaac": 5913,
+  "keyword": "aula",
+  "v": 2
+ },
+ "es-termine": {
+  "arasaac": 5358,
+  "keyword": "terminar",
+  "v": 2
+ },
  "f-acciones": {
   "arasaac": 7297,
   "keyword": "verbo",
@@ -519,6 +614,11 @@
  "f-bebidas": {
   "arasaac": 4575,
   "keyword": "bebida",
+  "v": 2
+ },
+ "f-colegio": {
+  "arasaac": 3082,
+  "keyword": "colegio",
   "v": 2
  },
  "f-comida": {
