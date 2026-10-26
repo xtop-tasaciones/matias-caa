@@ -11,6 +11,7 @@ import { openLog } from './log.js';
 import { editChoice } from './special.js';
 import { openImport } from './importer.js';
 import { openSearch } from './search.js';
+import { openTimer, TIMER_MINUTES } from './timer.js';
 
 const ARASAAC_API = 'https://api.arasaac.org/v1/pictograms/es';
 const arasaacImg = id => S.settings.arasaacColor ? `https://static.arasaac.org/pictograms/${id}/${id}_500.png` : `https://api.arasaac.org/v1/pictograms/${id}?color=false&resolution=500&download=false`;
@@ -52,6 +53,7 @@ export function toolbar() {
     b('➕ Nueva ficha', () => newCard(S.boards.get(S.board)?.special ? 'home' : S.board, null)),
     h('button', { class: 'btn primary', onclick: openMenuPicker }, '🧩 Elegir qué ve el niño'),
     b('🔎 Buscar', openSearch),
+    b('⏳ Esperar', openTimerPicker),
     b('📥 Importar pictogramas', openImport),
     b('⚙️ Ajustes', openSettings),
     b('🔲 Tamaño de esta pantalla', openBoardGrid),
@@ -924,7 +926,7 @@ async function resetAll() {
 }
 
 // ---------- Actualizaciones ----------
-export const APP_VERSION = '2.3';
+export const APP_VERSION = '2.4';
 async function checkUpdate() {
   if (!navigator.onLine) { toast('Necesitas internet para buscar actualizaciones'); return; }
   toast('Buscando actualización…');
@@ -933,6 +935,15 @@ async function checkUpdate() {
     if (reg) await reg.update();
   } catch (e) {}
   setTimeout(() => location.reload(), 2500);
+}
+
+// ---------- Temporizador desde el Modo Padres ----------
+function openTimerPicker() {
+  const m = modal('⏳ Esperar');
+  m.body.append(
+    h('p', {}, 'Muéstrale cuánto falta: un disco que se va vaciando, sin sonidos. Al terminar dice “¡Listo!”. Para cerrarlo antes, mantén ✕ un segundo.'),
+    h('div', { class: 'row wrap' }, TIMER_MINUTES.map(n => h('button', { class: 'btn primary', onclick: () => { m.close(); setParent(false); openTimer(n); } }, n === 1 ? '1 minuto' : `${n} minutos`))),
+    h('p', { class: 'muted small' }, 'Para que él mismo lo use, muestra la carpeta “Esperar” del Inicio con “🧩 Elegir qué ve el niño”.'));
 }
 
 // ---------- Bloqueo y Acerca de ----------
@@ -968,7 +979,7 @@ function openAbout() {
     h('p', {}, '📊 Registro: guarda lo que el niño toca y las frases que forma, para la terapeuta (planilla .csv). Lo que se toca en Modo Padres o mientras modelas (mantén Inicio 2 segundos) no se guarda.'),
     h('p', {}, '💾 Respaldo: antes de importar o restablecer se guarda sola una copia para poder volver atrás, y la app te recuerda guardar un respaldo si pasan 7 días sin hacerlo.'),
     h('p', {}, '🖼️ Pictogramas: los símbolos pictográficos utilizados son propiedad del Gobierno de Aragón y han sido creados por Sergio Palao para ARASAAC (', h('a', { href: 'https://arasaac.org', target: '_blank', rel: 'noopener' }, 'arasaac.org'), '), que los distribuye bajo Licencia Creative Commons BY-NC-SA.'),
-    h('p', {}, '😀 Los dibujos iniciales son los emojis del propio equipo, por eso pueden verse un poco distintos en iPhone, Android y Mac.'),
+    h('p', {}, '⏳ Esperar: un temporizador visual que muestra cuánto falta, sin sonidos.'),
     h('p', { class: 'muted small' }, 'Colores de borde (código Fitzgerald): amarillo personas, verde acciones, naranja cosas, azul descriptivos, morado lugares, rosa social, rojo negación/urgente.'),
     h('p', { class: 'muted small' }, 'Versión ' + APP_VERSION),
     h('button', { class: 'btn primary', onclick: checkUpdate }, '🔄 Buscar actualización'),

@@ -1,6 +1,6 @@
 // Aplicación principal: estado, Modo Niño, tira de frase, barra rápida y navegación.
 import * as db from './db.js';
-import { buildDefaults } from './vocab.js';
+import { buildDefaults, SCHOOL } from './vocab.js';
 import * as voice from './speech.js';
 import { h, $, toast, today } from './ui.js';
 import { renderSpecial } from './special.js';
@@ -609,6 +609,36 @@ async function migrateQuiero() {
   await db.setKV('quieroVersion', 1);
 }
 
+// Temporizador "Esperar": tablero especial y su carpeta en el Inicio, escondida hasta que el adulto la muestre
+async function migrateTimer() {
+  if ((await db.getKV('timerVersion', 0)) >= 1) return;
+  if (!S.boards.has('esperar')) await saveBoard({ id: 'esperar', name: 'Esperar', special: 'timer' });
+  if (!S.cards.has('f-esperar') && S.boards.has('home')) {
+    await saveCard({ id: 'f-esperar', boardId: 'home', ...firstFreeSlot('home'), label: 'Esperar', speak: '', emoji: '⏳', color: 'carpeta',
+      type: 'folder', link: 'esperar', q: 'esperar', hidden: true, image: { kind: 'picto', id: 'a-esperar' }, audio: null });
+  }
+  await db.setKV('timerVersion', 1);
+}
+
+// Menú del colegio: tablero nuevo y su carpeta en el Inicio, escondida hasta que el adulto la muestre
+async function migrateSchool() {
+  if ((await db.getKV('schoolVersion', 0)) >= 1) return;
+  if (!S.boards.has('colegio')) {
+    await saveBoard({ id: 'colegio', name: 'Colegio' });
+    const g = gridOf('colegio');
+    for (const [i, [id, label, emoji, color, o]] of SCHOOL.entries()) {
+      if (S.cards.has(id)) continue;
+      await saveCard({ id, boardId: 'colegio', ...posToSlot(i, 'colegio', g), label, emoji, color, speak: o.s || '', type: 'word', link: null,
+        q: o.q || '', hidden: false, image: PICTOS[id] ? { kind: 'picto', id } : null, audio: null });
+    }
+  }
+  if (!S.cards.has('f-colegio') && S.boards.has('home')) {
+    await saveCard({ id: 'f-colegio', boardId: 'home', ...firstFreeSlot('home'), label: 'Colegio', speak: '', emoji: '🏫', color: 'carpeta',
+      type: 'folder', link: 'colegio', q: 'colegio', hidden: true, image: PICTOS['f-colegio'] ? { kind: 'picto', id: 'f-colegio' } : null, audio: null });
+  }
+  await db.setKV('schoolVersion', 1);
+}
+
 // Pictogramas ARASAAC incluidos en la app (carpeta pictos/)
 export let PICTOS = {};
 async function loadPictos() {
@@ -642,8 +672,10 @@ async function init() {
   if (S.fresh && S.boards.get('home')) { const hb = { ...S.boards.get('home') }; delete hb.cols; delete hb.rows; await saveBoard(hb); }
   await migrateSlots();
   await migrateQuiero();
-  if (!(await db.getKV('installedAt', 0))) await db.setKV('installedAt', Date.now());
   await loadPictos();
+  await migrateTimer();
+  await migrateSchool();
+  if (!(await db.getKV('installedAt', 0))) await db.setKV('installedAt', Date.now());
   checkScheduleDay();
   applySettings();
   render();

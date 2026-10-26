@@ -285,6 +285,29 @@ export const BODY_PARTS = [
   { id: 'poto', label: 'poto', art: 'el', emoji: '🍑' },
 ];
 
+// Menú del colegio: se agrega escondido en el Inicio; el adulto lo muestra con "Elegir qué ve el niño".
+// Las 12 primeras son las de la página 1 (lo más necesario en el colegio).
+export const SCHOOL = [
+  ['es-profesora', 'profesora', '👩‍🏫', 'persona', {}],
+  ['es-companeros', 'compañeros', '🧒', 'persona', {}],
+  ['es-bano', 'baño', '🚽', 'urgente', { s: 'Quiero ir al baño' }],
+  ['es-agua', 'agua', '💧', 'cosa', { s: 'Quiero agua' }],
+  ['es-ayuda', 'ayuda', '🆘', 'urgente', { s: 'Ayúdame, por favor' }],
+  ['es-termine', 'terminé', '🏁', 'social', {}],
+  ['es-recreo', 'recreo', '⚽', 'cosa', {}],
+  ['es-lonchera', 'lonchera', '🍱', 'cosa', { s: 'Quiero mi lonchera' }],
+  ['es-jugar', 'jugar', '🧸', 'accion', { s: 'Quiero jugar' }],
+  ['es-descansar', 'descansar', '😌', 'accion', { s: 'Quiero descansar' }],
+  ['es-casa', 'ir a casa', '🏠', 'lugar', { s: 'Quiero ir a casa' }],
+  ['es-noquiero', 'no quiero', '🙅', 'urgente', {}],
+  ['es-pintar', 'pintar', '🎨', 'accion', {}],
+  ['es-cuento', 'cuento', '📖', 'cosa', {}],
+  ['es-musica', 'música', '🎵', 'cosa', {}],
+  ['es-mochila', 'mochila', '🎒', 'cosa', {}],
+  ['es-patio', 'patio', '🌳', 'lugar', {}],
+  ['es-salon', 'salón', '🏫', 'lugar', {}],
+];
+
 export function buildDefaults() {
   const boards = BOARDS.map(b => ({ ...b }));
   const cards = [];
