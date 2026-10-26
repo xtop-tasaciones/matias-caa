@@ -4,7 +4,7 @@ import { S } from './app.js';
 import { h, modal, shareOrDownload, today, confirmBox, toast } from './ui.js';
 
 export function logEvent(ev) {
-  if (!S.settings.logEnabled || S.parent) return;
+  if (!S.settings.logEnabled || S.parent || S.modeling) return;
   db.add('log', { ts: Date.now(), ...ev }).catch(() => {});
 }
 
@@ -83,8 +83,10 @@ export async function openLog() {
   }
   draw();
 
-  const exportBtn = h('button', { class: 'btn primary' }, '📤 Exportar para la terapeuta');
-  exportBtn.addEventListener('click', () => exportLog(events, days));
+  const exportBtn = h('button', { class: 'btn primary' }, '📤 Planilla para la terapeuta (.csv)');
+  exportBtn.addEventListener('click', () => exportCsv(events, days));
+  const summaryBtn = h('button', { class: 'btn' }, '📝 Resumen (.txt)');
+  summaryBtn.addEventListener('click', () => exportSummary(events, days));
   const clearBtn = h('button', { class: 'btn danger' }, 'Borrar registro');
   clearBtn.addEventListener('click', async () => {
     if (await confirmBox('¿Borrar todo el registro de uso? No se puede deshacer.', { ok: 'Borrar', danger: true })) {
@@ -94,14 +96,30 @@ export async function openLog() {
   m.body.append(
     h('div', { class: 'row wrap' }, ranges),
     content,
-    h('div', { class: 'row wrap end' }, clearBtn, exportBtn),
-    h('p', { class: 'muted small' }, S.settings.logEnabled ? 'El registro está activado. Puedes desactivarlo en Ajustes. No se registra lo que se toca en el Modo Padres.' : 'El registro está desactivado en Ajustes.'),
+    h('div', { class: 'row wrap end' }, clearBtn, summaryBtn, exportBtn),
+    h('p', { class: 'muted small' }, S.settings.logEnabled ? 'El registro está activado. Puedes desactivarlo en Ajustes. No se registra lo que se toca en el Modo Padres, ni mientras modelas (mantén Inicio 2 segundos para empezar y terminar de modelar; se ve un borde suave).' : 'El registro está desactivado en Ajustes.'),
   );
 }
 
-function csvCell(v) { const s = String(v ?? ''); return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+// Planilla .csv (se abre en Excel, Numbers o Google Sheets): una fila por toque o frase.
+function csvCell(v) { const s = String(v ?? ''); return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+const hhmm = ts => { const d = new Date(ts); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
 
-async function exportLog(events, days) {
+export function logCsv(events, days) {
+  const since = days ? Date.now() - days * DAY : 0;
+  const rows = [['fecha', 'hora', 'tipo', 'texto', 'tablero']];
+  events.filter(e => e.ts >= since).sort((a, b) => a.ts - b.ts).forEach(e =>
+    rows.push([today(new Date(e.ts)), hhmm(e.ts), e.kind === 'phrase' ? 'frase' : 'ficha', e.label, e.board || '']));
+  // BOM al inicio para que Excel lea bien las tildes y la ñ
+  return '\uFEFF' + rows.map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
+}
+
+async function exportCsv(events, days) {
+  const csv = logCsv(events, days);
+  await shareOrDownload(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `registro-comunicacion-${today()}.csv`);
+}
+
+async function exportSummary(events, days) {
   const r = summarize(events, days);
   const periodo = days ? `últimos ${days} días` : 'todo el registro';
   const lines = [];
@@ -116,16 +134,5 @@ async function exportLog(events, days) {
   lines.push('');
   lines.push('USO POR DÍA');
   [...r.perDay.entries()].sort().forEach(([d, v]) => lines.push(`  ${d}: ${v.cards} fichas, ${v.phrases} frases`));
-  lines.push('');
-  lines.push('DETALLE (fecha;hora;tipo;texto;tablero)');
-  const since = days ? Date.now() - days * DAY : 0;
-  const csv = ['fecha;hora;tipo;texto;tablero'];
-  events.filter(e => e.ts >= since).sort((a, b) => a.ts - b.ts).forEach(e => {
-    const row = [today(new Date(e.ts)), fmtTime(e.ts), e.kind === 'phrase' ? 'frase' : 'ficha', e.label, e.board || ''].map(csvCell).join(';');
-    csv.push(row);
-    lines.push('  ' + row);
-  });
-  const name = `registro-comunicacion-${today()}`;
-  // Un solo archivo de texto legible (incluye el detalle en formato CSV al final)
-  await shareOrDownload(new Blob(['﻿' + lines.join('\n')], { type: 'text/plain' }), name + '.txt');
+  await shareOrDownload(new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/plain' }), `resumen-comunicacion-${today()}.txt`);
 }

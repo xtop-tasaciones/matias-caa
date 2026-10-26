@@ -246,6 +246,22 @@ export function bindActivate(el, fn) {
   el.tabIndex = 0;
 }
 
+// Mantener presionado: para gestos del adulto que el niño no hace por accidente
+function bindLongPress(el, ms, fn) {
+  let timer = null;
+  const stop = () => { clearTimeout(timer); timer = null; };
+  el.addEventListener('pointerdown', e => { if (e.button && e.button !== 0) return; stop(); timer = setTimeout(() => { timer = null; fn(); }, ms); });
+  for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) el.addEventListener(ev, stop);
+}
+
+// "Estoy modelando": el adulto toca fichas para enseñarle; esos toques no van al registro.
+// Se activa y desactiva manteniendo Inicio 2 segundos. Un borde suave lo indica.
+export function toggleModeling() {
+  S.modeling = !S.modeling;
+  document.documentElement.classList.toggle('modeling', S.modeling);
+  toast(S.modeling ? 'Estoy modelando: lo que se toque ahora no se guarda en el registro. Mantén Inicio otra vez para terminar.' : 'Modelado terminado: el registro sigue como siempre.', 3500);
+}
+
 // ---------- Acciones ----------
 export function activateCard(card, boardName) {
   if (card.type === 'folder') {
@@ -315,6 +331,7 @@ export function render() {
   els.quick = h('div', { class: 'quick' });
   app.append(els.parentBar, els.strip, els.nav, els.main, els.quick);
   document.documentElement.classList.toggle('parent-mode', S.parent);
+  document.documentElement.classList.toggle('modeling', !!S.modeling && !S.parent);
   renderParentBar();
   renderStrip();
   renderMain();
@@ -325,6 +342,7 @@ function renderParentBar() {
   els.parentBar.innerHTML = '';
   if (!S.parent) return;
   els.parentBar.append(parents.toolbar());
+  parents.notices(els.parentBar);
 }
 
 export function renderStrip() {
@@ -366,6 +384,8 @@ function renderNav() {
   const home = h('div', { class: 'navbtn home' + (S.board === 'home' ? ' here' : ''), 'aria-label': 'Inicio' },
     h('span', { class: 'ico' }, '🏠'), h('span', { class: 'txt' }, 'Inicio'));
   bindActivate(home, () => openBoard('home'));
+  // Mantenerlo 2 s: "Estoy modelando". Se cancela el toque para que no abra el Inicio ni cuente como toque.
+  if (!S.parent) bindLongPress(home, 2000, () => { home.dispatchEvent(new Event('pointercancel')); toggleModeling(); });
   const special = board && board.special;
   const pages = special ? 1 : pageCount(S.board);
   if (S.page >= pages) S.page = pages - 1;
@@ -622,6 +642,7 @@ async function init() {
   if (S.fresh && S.boards.get('home')) { const hb = { ...S.boards.get('home') }; delete hb.cols; delete hb.rows; await saveBoard(hb); }
   await migrateSlots();
   await migrateQuiero();
+  if (!(await db.getKV('installedAt', 0))) await db.setKV('installedAt', Date.now());
   await loadPictos();
   checkScheduleDay();
   applySettings();
