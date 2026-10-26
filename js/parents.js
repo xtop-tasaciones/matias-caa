@@ -548,7 +548,35 @@ export function openMenuPicker() {
     section('Menús del Inicio', 'Carpetas grandes de la pantalla principal. El tamaño se ajusta solo según cuántas marques.', 'home', c => c.type === 'folder'),
     section('Palabras sueltas en el Inicio', 'Palabras de uso frecuente (yo, quiero, más…). Recomendado solo cuando ya maneja los menús.', 'home', c => c.type !== 'folder'),
     section('Barra de abajo (urgencias)', 'Botones que se ven siempre, en todas las pantallas.', 'quick', () => true),
+    insideMenus(),
   );
+
+  // Fichas dentro de cada menú (qué comidas, qué lugares, qué juguetes…)
+  function insideMenus() {
+    const menus = cardsOf('home').filter(c => c.type === 'folder' && c.link && S.boards.has(c.link) && !S.boards.get(c.link).special)
+      .sort((a, b) => (a.hidden - b.hidden) || a.pos - b.pos);
+    if (!menus.length) return null;
+    const sel = h('select', {}, menus.map(c => h('option', { value: c.link }, c.label + (c.hidden ? ' (escondido)' : ''))));
+    const holder = h('div');
+    const all = (on) => async () => {
+      const list = cardsOf(sel.value);
+      if (!list.length) return;
+      for (const c of list) if (!!c.hidden === on) await saveCard({ ...c, hidden: !on });
+      await setVisible(sel.value, S.cards.get(list[0].id), on);
+      draw();
+    };
+    const draw = () => {
+      holder.innerHTML = '';
+      holder.append(section('Fichas de “' + S.boards.get(sel.value).name + '”', 'Lo desmarcado no lo ve el niño. Las marcadas se juntan al principio, sin huecos.', sel.value, () => true));
+    };
+    sel.onchange = draw;
+    draw();
+    return h('section', {}, h('h3', {}, 'Dentro de cada menú'),
+      h('div', { class: 'row wrap' }, h('label', { class: 'field inline' }, h('span', {}, 'Menú'), sel),
+        h('button', { class: 'btn', onclick: all(true) }, 'Marcar todas'),
+        h('button', { class: 'btn', onclick: all(false) }, 'Desmarcar todas')),
+      holder);
+  }
 }
 
 // ---------- Cuadrícula propia de un tablero ----------
@@ -710,7 +738,7 @@ async function resetAll() {
 }
 
 // ---------- Actualizaciones ----------
-export const APP_VERSION = '1.6';
+export const APP_VERSION = '1.7';
 async function checkUpdate() {
   if (!navigator.onLine) { toast('Necesitas internet para buscar actualizaciones'); return; }
   toast('Buscando actualización…');
