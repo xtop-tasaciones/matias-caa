@@ -1,6 +1,6 @@
 // Almacenamiento local en IndexedDB. Nada sale del dispositivo.
 const DB_NAME = 'matias-caa';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 export const STORES = ['cards', 'boards', 'media', 'kv', 'log'];
 
 let dbp = null;
@@ -19,8 +19,14 @@ function open() {
         const s = db.createObjectStore('log', { keyPath: 'id', autoIncrement: true });
         s.createIndex('ts', 'ts');
       }
+      // Copia de seguridad automática antes de importar o restablecer (no viaja en el respaldo)
+      if (!db.objectStoreNames.contains('copias')) db.createObjectStore('copias', { keyPath: 'id' });
     };
-    req.onsuccess = () => resolve(req.result);
+    req.onsuccess = () => {
+      // Si otra pestaña trae una versión nueva de la base, se cede para no bloquearla
+      req.result.onversionchange = () => { req.result.close(); dbp = null; };
+      resolve(req.result);
+    };
     req.onerror = () => reject(req.error);
   });
   return dbp;
@@ -52,6 +58,37 @@ export const del = (store, key) => tx(store, 'readwrite', s => { s.delete(key); 
 export const clear = (store) => tx(store, 'readwrite', s => { s.clear(); });
 export const putMany = (store, vals) => tx(store, 'readwrite', s => { for (const v of vals) s.put(v); });
 export const add = (store, val) => tx(store, 'readwrite', s => { s.add(val); });
+
+// Reemplaza varios almacenes en una sola transacción: o se guarda todo, o no cambia nada.
+export async function replaceAll(data) {
+  const db = await open();
+  const names = Object.keys(data);
+  return new Promise((resolve, reject) => {
+    const t = db.transaction(names, 'readwrite');
+    for (const n of names) {
+      const s = t.objectStore(n);
+      s.clear();
+      for (const v of data[n]) s.put(v);
+    }
+    t.oncomplete = () => resolve();
+    t.onerror = () => reject(t.error);
+    t.onabort = () => reject(t.error);
+  });
+}
+
+// Foto de todo lo que hay ahora, guardada aparte; se puede volver a ella con restoreSnapshot().
+export async function saveSnapshot(reason) {
+  const data = {};
+  for (const st of STORES) data[st] = await getAll(st);
+  await put('copias', { id: 'ultima', created: Date.now(), reason, data });
+}
+export const getSnapshot = () => get('copias', 'ultima');
+export async function restoreSnapshot() {
+  const snap = await getSnapshot();
+  if (!snap) return false;
+  await replaceAll(snap.data);
+  return true;
+}
 
 export async function getKV(key, fallback) {
   const r = await get('kv', key);

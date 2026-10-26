@@ -37,7 +37,10 @@ Abre la dirección una vez con internet. Después funciona sin conexión.
 - **ARASAAC:** las fichas ya traen pictogramas ARASAAC en blanco y negro (funcionan sin internet). En Ajustes se pueden poner a color. En cada ficha puedes “Buscar en ARASAAC” otro dibujo.
 - **Agenda:** carpeta Agenda → “Editar agenda”. Él toca cada actividad al terminarla (queda gris con ✓). Se desmarca sola cada día. Pestaña “Primero / Después”.
 - **Elegir:** botón “🤔 Elegir” → escribe la pregunta y elige de 2 a 4 fichas.
-- **Registro:** palabras más usadas, frases de 2 o más palabras y uso por día. “Exportar para la terapeuta” crea un archivo para enviar.
+- **Registro:** palabras más usadas, frases de 2 o más palabras y uso por día. “Planilla para la terapeuta (.csv)” crea una planilla (fecha, hora, tipo, texto, tablero) que se abre en Excel o Google Sheets; “Resumen (.txt)” crea un resumen corto.
+- **Estoy modelando:** mantén presionado 🏠 Inicio 2 segundos. Aparece un borde azul suave y lo que toques no se guarda en el registro. Mantén Inicio 2 segundos otra vez para terminar.
+- **Respaldo seguro:** antes de importar un respaldo se revisa el archivo completo (si está dañado no se cambia nada) y se guarda sola una copia de lo que había, para poder “↩️ Volver a como estaba” desde 💾 Respaldo. Si pasan 7 días sin guardar un respaldo, el Modo Padres te lo recuerda.
+- **Voz:** si el equipo no tiene una voz en español, el Modo Padres lo avisa y muestra los pasos para instalarla.
 
 ## Actualizaciones
 

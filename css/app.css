@@ -269,6 +269,11 @@ input, textarea, select { -webkit-user-select: text; user-select: text; font: in
 .parentbar:empty { display: none; }
 .ptoolbar { display: flex; gap: 6px; padding: 6px var(--gap); background: #FFF4D6; border-bottom: 2px solid #E5B300; overflow-x: auto; align-items: center; flex-wrap: wrap; color: #1F2328; }
 .pbadge { font-weight: 800; margin-right: 6px; }
+.pnotice { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 6px var(--gap); background: #FFF6E5; border-bottom: 1.5px dashed #B26A00; color: #5A3B00; font-size: 14px; }
+.pnotice > span { flex: 1 1 260px; }
+@media (max-width: 700px) { .pnotice { font-size: 13px; padding: 3px 8px; gap: 6px; flex-wrap: nowrap; } .pnotice > span { flex: 1 1 auto; line-height: 1.2; } .pnotice .more { display: none; } .pnotice .btn { padding: 4px 8px; font-size: 13px; } }
+/* Estoy modelando: borde suave alrededor de toda la pantalla, sin animación */
+html.modeling body::after { content: ''; position: fixed; inset: 0; border: 5px solid #8AA9C9; border-radius: 6px; pointer-events: none; z-index: 40; }
 .phint { font-size: 13px; color: #6B6760; margin-left: 8px; }
 .btn {
   font: inherit; font-size: 15px; padding: 9px 14px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--panel); color: var(--ink);

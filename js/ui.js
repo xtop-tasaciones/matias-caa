@@ -58,14 +58,15 @@ export function downloadBlob(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
-// Compartir (útil en iPhone para "Guardar en Archivos" o enviar por WhatsApp)
+// Compartir (útil en iPhone para "Guardar en Archivos" o enviar por WhatsApp). Devuelve false si se canceló.
 export async function shareOrDownload(blob, filename) {
   const file = new File([blob], filename, { type: blob.type });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: filename }); return; }
-    catch (e) { if (e.name === 'AbortError') return; }
+    try { await navigator.share({ files: [file], title: filename }); return true; }
+    catch (e) { if (e.name === 'AbortError') return false; }
   }
   downloadBlob(blob, filename);
+  return true;
 }
 
 export function today(d = new Date()) {

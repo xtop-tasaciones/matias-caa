@@ -753,26 +753,54 @@ export async function exportBackup(includeLog = true) {
   const [boards, cards, media, kv, log] = await Promise.all(['boards', 'cards', 'media', 'kv', 'log'].map(st => db.getAll(st)));
   const data = {
     app: 'matias-caa', version: 1, created: new Date().toISOString(),
-    boards, cards, kv,
+    boards, cards, kv: kv.filter(e => !LOCAL_KV.includes(e.key)),
     media: media.map(m => ({ id: m.id, type: m.type, data: bufToB64(m.data) })),
     log: includeLog ? log : [],
   };
   const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-  await shareOrDownload(blob, `matias-respaldo-${today()}.json`);
+  if (await shareOrDownload(blob, `matias-respaldo-${today()}.json`)) await db.setKV('lastExport', Date.now());
 }
+
+// Datos de este equipo que no viajan en el respaldo ni se pisan al importar
+const LOCAL_KV = ['lastExport', 'installedAt'];
+const isText = v => typeof v === 'string' && v.length > 0;
+
+// Revisa el archivo completo antes de tocar nada. Devuelve las fotos y audios ya leídos, o el problema encontrado.
+function checkBackup(data) {
+  const bad = what => ({ error: `El respaldo está incompleto o dañado (${what}). No se cambió nada en este equipo.` });
+  if (!data || data.app !== 'matias-caa') return { error: 'El archivo no es un respaldo de esta app. No se cambió nada.' };
+  for (const k of ['boards', 'cards', 'media']) if (!Array.isArray(data[k])) return bad(k);
+  if (data.kv != null && !Array.isArray(data.kv)) return bad('ajustes');
+  if (data.log != null && !Array.isArray(data.log)) return bad('registro');
+  if (!data.boards.length || data.boards.some(b => !b || !isText(b.id))) return bad('menús');
+  if (!data.boards.some(b => b.id === 'home')) return bad('falta el Inicio');
+  if (data.cards.some(c => !c || !isText(c.id) || !isText(c.boardId))) return bad('fichas');
+  if ((data.kv || []).some(e => !e || !isText(e.key))) return bad('ajustes');
+  if ((data.log || []).some(e => !e || typeof e.ts !== 'number')) return bad('registro');
+  const media = [];
+  for (const m of data.media) {
+    if (!m || !isText(m.id) || typeof m.data !== 'string') return bad('fotos y audios');
+    try { media.push({ id: m.id, type: m.type || 'application/octet-stream', data: b64ToBuf(m.data) }); }
+    catch (e) { return bad('fotos y audios'); }
+  }
+  return { media };
+}
+
+const fmtDay = ts => new Date(ts).toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' });
 
 async function importBackup(file) {
   let data;
-  try { data = JSON.parse(await file.text()); } catch (e) { toast('El archivo no es un respaldo válido'); return; }
-  if (data.app !== 'matias-caa' || !Array.isArray(data.cards)) { toast('El archivo no es un respaldo de esta app'); return; }
-  const ok = await confirmBox(`Se reemplazará todo el tablero de este equipo por el del respaldo (${data.cards.length} fichas, ${data.media.length} fotos/audios, del ${new Date(data.created).toLocaleDateString('es-PE')}). ¿Continuar?`, { ok: 'Importar', danger: true });
+  try { data = JSON.parse(await file.text()); } catch (e) { toast('El archivo no es un respaldo válido. No se cambió nada.', 4000); return; }
+  const checked = checkBackup(data);
+  if (checked.error) { toast(checked.error, 6000); return; }
+  const when = Date.parse(data.created);
+  const ok = await confirmBox(`Se reemplazará todo el tablero de este equipo por el del respaldo (${data.cards.length} fichas, ${data.media.length} fotos/audios${when ? ', del ' + fmtDay(when) : ''}). Antes se guarda una copia de lo que hay ahora, para poder volver atrás. ¿Continuar?`, { ok: 'Importar', danger: true });
   if (!ok) return;
   const localVoice = S.settings.voiceURI;
   // Respaldos de versiones anteriores guardan "pos": se pasa a fila y columna con la cuadrícula del respaldo
   const bkSettings = { ...DEFAULT_SETTINGS, ...((data.kv || []).find(e => e.key === 'settings')?.value || {}) };
   const bkBoards = new Map(data.boards.map(b => [b.id, b]));
   slotsFromPos(data.cards, id => { const b = bkBoards.get(id); return b && b.cols && b.rows ? { cols: b.cols, rows: b.rows } : { cols: bkSettings.cols, rows: bkSettings.rows }; });
-  data.kv = (data.kv || []).filter(e => e.key !== 'slotVersion').concat({ key: 'slotVersion', value: 1 });
   // Sin "misma cuadrícula en todos mis equipos": este equipo conserva sus propios tamaños de pantalla
   const keepGrid = bkSettings.gridSync === false;
   if (keepGrid) {
@@ -782,19 +810,79 @@ async function importBackup(file) {
       if (mine && mine.cols && mine.rows) Object.assign(b, { cols: mine.cols, rows: mine.rows, manualGrid: mine.manualGrid });
     }
   }
-  for (const st of ['boards', 'cards', 'media', 'kv']) await db.clear(st);
-  await db.putMany('boards', data.boards);
-  await db.putMany('cards', data.cards);
-  await db.putMany('media', data.media.map(m => ({ id: m.id, type: m.type, data: b64ToBuf(m.data) })));
   const own = keepGrid ? { cols: S.settings.cols, rows: S.settings.rows } : {};
-  const kv = data.kv.map(e => e.key === 'settings' ? { key: 'settings', value: { ...DEFAULT_SETTINGS, ...e.value, voiceURI: localVoice, ...own } } : e);
-  await db.putMany('kv', kv);
-  if (data.log && data.log.length) {
-    await db.clear('log');
-    await db.putMany('log', data.log);
+  const localKV = (await db.getAll('kv')).filter(e => LOCAL_KV.includes(e.key));
+  const kv = (data.kv || []).filter(e => e.key !== 'slotVersion' && !LOCAL_KV.includes(e.key))
+    .map(e => e.key === 'settings' ? { key: 'settings', value: { ...DEFAULT_SETTINGS, ...e.value, voiceURI: localVoice, ...own } } : e)
+    .concat({ key: 'slotVersion', value: 1 }, localKV);
+  try {
+    await db.saveSnapshot('importar');
+    const next = { boards: data.boards, cards: data.cards, media: checked.media, kv };
+    if (data.log && data.log.length) next.log = data.log;
+    await db.replaceAll(next);
+  } catch (e) {
+    toast('No se pudo importar (¿falta espacio en el equipo?). No se cambió nada.', 6000);
+    return;
   }
   toast('Respaldo importado');
   setTimeout(() => location.reload(), 600);
+}
+
+async function undoImport() {
+  const snap = await db.getSnapshot();
+  if (!snap) return;
+  if (!(await confirmBox(`Se volverá al tablero que había el ${fmtDay(snap.created)} a las ${new Date(snap.created).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}, antes de ${snap.reason === 'restablecer' ? 'restablecer' : 'importar'}. Lo que hay ahora se reemplaza. ¿Continuar?`, { ok: 'Volver atrás', danger: true }))) return;
+  try { await db.restoreSnapshot(); } catch (e) { toast('No se pudo volver atrás. No se cambió nada.', 5000); return; }
+  toast('Listo: el tablero volvió a como estaba');
+  setTimeout(() => location.reload(), 600);
+}
+
+// Recordatorio en Modo Padres: 7 días o más sin guardar un respaldo
+const WEEK = 7 * 86400000;
+let reminderLater = false;
+async function backupReminder() {
+  if (reminderLater) return null;
+  const last = await db.getKV('lastExport', 0);
+  const since = last || await db.getKV('installedAt', Date.now());
+  if (Date.now() - since < WEEK) return null;
+  const days = Math.floor((Date.now() - since) / 86400000);
+  const box = h('div', { class: 'pnotice' },
+    h('span', {}, h('b', {}, last ? `💾 Hace ${days} días que no guardas un respaldo.` : '💾 Aún no hay un respaldo de este equipo.'),
+      h('span', { class: 'more' }, ' Si el equipo se pierde o se borra, las fotos y voces grabadas se pierden con él.')),
+    h('button', { class: 'btn primary sm', onclick: () => { box.remove(); openBackup(); } }, 'Guardar respaldo'),
+    h('button', { class: 'btn sm', onclick: () => { reminderLater = true; box.remove(); } }, 'Más tarde'));
+  return box;
+}
+
+// Aviso en Modo Padres si el equipo no tiene voz en español
+async function voiceWarning() {
+  await voice.voicesReady();
+  if (voice.ttsAvailable() && voice.spanishVoices().length) return null;
+  return h('div', { class: 'pnotice' },
+    h('span', {}, h('b', {}, '🔈 Falta una voz en español en este equipo.'),
+      h('span', { class: 'more' }, ' Las fichas sin voz grabada pueden no sonar, o sonar con acento extranjero.')),
+    h('button', { class: 'btn primary sm', onclick: openVoiceHelp }, 'Cómo instalarla'));
+}
+
+export async function notices(bar) {
+  for (const n of await Promise.all([voiceWarning(), backupReminder()])) if (n && S.parent && bar.isConnected) bar.append(n);
+}
+
+function openVoiceHelp() {
+  const m = modal('Instalar una voz en español', { wide: true });
+  const ua = navigator.userAgent;
+  const mine = /iPhone|iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ? 'ios' : /Android/.test(ua) ? 'android' : /Mac/.test(ua) ? 'mac' : /Windows/.test(ua) ? 'windows' : '';
+  const steps = [
+    ['ios', '📱 iPad / iPhone', ['Ajustes → Accesibilidad → Contenido leído → Voces.', 'Toca “Español” y elige una voz de México o de Estados Unidos (por ejemplo Paulina o Mónica).', 'Toca la nube para descargarla y espera a que termine (con wifi).', 'Cierra la app de Matías y vuelve a abrirla.']],
+    ['android', '🤖 Android', ['Ajustes → Administración general (o Sistema) → Idioma y entrada → Salida de texto a voz.', 'Elige “Servicios de voz de Google” y toca el engranaje → Instalar datos de voz.', 'Elige “Español (Estados Unidos)” o “Español (México)” y descárgala.', 'Cierra la app de Matías y vuelve a abrirla.']],
+    ['mac', '💻 Mac', ['Ajustes del Sistema → Accesibilidad → Contenido leído.', 'En “Voz del sistema” elige “Gestionar voces…”.', 'Busca Español (México) o Español (Estados Unidos), marca una voz y espera la descarga.', 'Cierra la app de Matías y vuelve a abrirla.']],
+    ['windows', '🪟 Windows', ['Configuración → Hora e idioma → Voz.', 'En “Administrar voces” toca “Agregar voces”.', 'Elige Español (México) e instálala.', 'Cierra la app de Matías y vuelve a abrirla.']],
+  ];
+  steps.sort((a, b) => (b[0] === mine) - (a[0] === mine));
+  m.body.append(
+    h('p', {}, 'La app usa la voz del propio equipo. Se descarga una sola vez y después funciona sin internet.'),
+    ...steps.map(([k, title, list]) => h('section', {}, h('h3', {}, title + (k === mine ? ' (este equipo)' : '')), h('ol', {}, list.map(t => h('li', {}, t))))),
+    h('p', { class: 'muted small' }, 'Mientras tanto, puedes grabar tu propia voz en cada ficha: tócala en Modo Padres → “Grabar voz”.'));
 }
 
 function openBackup() {
@@ -802,14 +890,23 @@ function openBackup() {
   const file = h('input', { type: 'file', accept: '.json,application/json', hidden: true });
   file.onchange = () => { if (file.files[0]) { m.close(); importBackup(file.files[0]); } };
   const logChk = h('input', { type: 'checkbox', checked: true });
+  const undo = h('section', { hidden: true });
+  db.getSnapshot().then(snap => {
+    if (!snap) return;
+    undo.hidden = false;
+    undo.append(h('h3', {}, '↩️ Volver atrás'),
+      h('p', {}, `Antes de ${snap.reason === 'restablecer' ? 'restablecer' : 'importar'} se guardó una copia del tablero (${fmtDay(snap.created)}). Si algo salió mal, puedes volver a ella.`),
+      h('button', { class: 'btn', onclick: () => { m.close(); undoImport(); } }, '↩️ Volver a como estaba'));
+  }).catch(() => {});
   m.body.append(
     h('section', {}, h('h3', {}, '📤 Exportar copia completa'),
       h('p', {}, 'Crea un solo archivo con todas las fichas, carpetas, fotos, voces grabadas, agenda y ajustes. Guárdalo en Drive/iCloud o envíalo por WhatsApp o AirDrop para pasarlo a otro equipo.'),
       h('label', { class: 'check' }, logChk, ' Incluir el registro de uso'),
       h('button', { class: 'btn primary', onclick: () => exportBackup(logChk.checked) }, '📤 Exportar respaldo')),
     h('section', {}, h('h3', {}, '📥 Importar en este equipo'),
-      h('p', {}, 'Reemplaza el tablero de este equipo por el del archivo. La voz elegida en este equipo se conserva.'),
+      h('p', {}, 'Reemplaza el tablero de este equipo por el del archivo. Primero se revisa el archivo completo y se guarda una copia de lo que hay ahora; si algo falla, no se cambia nada. La voz elegida en este equipo se conserva.'),
       h('button', { class: 'btn', onclick: () => file.click() }, '📥 Importar respaldo'), file),
+    undo,
     h('section', {}, h('h3', {}, '↺ Volver al vocabulario inicial'),
       h('p', { class: 'muted small' }, 'Borra todas las fichas y fotos de este equipo y carga el tablero inicial. Exporta un respaldo antes.'),
       h('button', { class: 'btn danger', onclick: resetAll }, 'Restablecer tablero')),
@@ -819,6 +916,7 @@ function openBackup() {
 async function resetAll() {
   if (!(await confirmBox('Se borrarán todas las fichas, fotos y voces de este equipo. ¿Seguro?', { ok: 'Borrar y restablecer', danger: true }))) return;
   const keep = S.settings;
+  try { await db.saveSnapshot('restablecer'); } catch (e) { toast('No se pudo guardar la copia de seguridad. No se cambió nada.', 5000); return; }
   for (const st of ['boards', 'cards', 'media', 'kv']) await db.clear(st);
   await seedDefaults();
   await db.setKV('settings', keep);
@@ -826,7 +924,7 @@ async function resetAll() {
 }
 
 // ---------- Actualizaciones ----------
-export const APP_VERSION = '2.2';
+export const APP_VERSION = '2.3';
 async function checkUpdate() {
   if (!navigator.onLine) { toast('Necesitas internet para buscar actualizaciones'); return; }
   toast('Buscando actualización…');
@@ -865,7 +963,10 @@ function openAbout() {
   const m = modal('Acerca de', { wide: true });
   m.body.append(
     h('p', {}, h('b', {}, 'Comunicador de Matías'), ' — aplicación de Comunicación Aumentativa y Alternativa (CAA) con pictogramas.'),
-    h('p', {}, '🔒 Privacidad: no tiene anuncios, ni cuentas, ni envía datos a ningún servidor. Todo (fichas, fotos, voces, registro) se guarda solo en este equipo. Solo se usa internet cuando tú buscas pictogramas en ARASAAC.'),
+    h('p', {}, '🔒 Privacidad: no tiene anuncios, ni cuentas, ni envía datos a ningún servidor. Todo (fichas, fotos, voces, registro) se guarda solo en este equipo. Solo se usa internet cuando tú buscas pictogramas en ARASAAC y para recibir actualizaciones de la app.'),
+    h('p', {}, '🧭 Las fichas no cambian de lugar solas: solo se mueven si un adulto las mueve. El niño ve una sola pantalla por menú.'),
+    h('p', {}, '📊 Registro: guarda lo que el niño toca y las frases que forma, para la terapeuta (planilla .csv). Lo que se toca en Modo Padres o mientras modelas (mantén Inicio 2 segundos) no se guarda.'),
+    h('p', {}, '💾 Respaldo: antes de importar o restablecer se guarda sola una copia para poder volver atrás, y la app te recuerda guardar un respaldo si pasan 7 días sin hacerlo.'),
     h('p', {}, '🖼️ Pictogramas: los símbolos pictográficos utilizados son propiedad del Gobierno de Aragón y han sido creados por Sergio Palao para ARASAAC (', h('a', { href: 'https://arasaac.org', target: '_blank', rel: 'noopener' }, 'arasaac.org'), '), que los distribuye bajo Licencia Creative Commons BY-NC-SA.'),
     h('p', {}, '😀 Los dibujos iniciales son los emojis del propio equipo, por eso pueden verse un poco distintos en iPhone, Android y Mac.'),
     h('p', { class: 'muted small' }, 'Colores de borde (código Fitzgerald): amarillo personas, verde acciones, naranja cosas, azul descriptivos, morado lugares, rosa social, rojo negación/urgente.'),

@@ -22,6 +22,16 @@ if (synth) {
   setTimeout(loadVoices, 2000);
 }
 
+// Espera a que el navegador entregue la lista de voces (a veces tarda un poco)
+export function voicesReady(ms = 2500) {
+  if (!synth || synth.getVoices().length) return Promise.resolve();
+  return new Promise(resolve => {
+    const done = () => { clearTimeout(t); synth.removeEventListener?.('voiceschanged', done); resolve(); };
+    const t = setTimeout(done, ms);
+    synth.addEventListener?.('voiceschanged', done);
+  });
+}
+
 export function spanishVoices() {
   loadVoices();
   return voices.slice().sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
