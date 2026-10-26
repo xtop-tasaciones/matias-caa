@@ -10,16 +10,19 @@ import { h, modal, toast, confirmBox, shareOrDownload, today } from './ui.js';
 import { openLog } from './log.js';
 import { editChoice } from './special.js';
 import { openImport } from './importer.js';
+import { openSearch } from './search.js';
 
 const ARASAAC_API = 'https://api.arasaac.org/v1/pictograms/es';
 const arasaacImg = id => S.settings.arasaacColor ? `https://static.arasaac.org/pictograms/${id}/${id}_500.png` : `https://api.arasaac.org/v1/pictograms/${id}?color=false&resolution=500&download=false`;
 const arasaacThumb = id => S.settings.arasaacColor ? `https://static.arasaac.org/pictograms/${id}/${id}_300.png` : `https://api.arasaac.org/v1/pictograms/${id}?color=false&resolution=500&download=false`;
 
 // ---------- Entrada protegida ----------
+// Tuerca discreta: gris, plana y chica, para que no llame la atención del niño
+const GEAR_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
 export function gateButton() {
   if (S.parent) return h('div', { class: 'gate placeholder' });
   // Un toque abre la pregunta; la suma (o el PIN) es lo que protege del niño.
-  return h('button', { class: 'gate', type: 'button', 'aria-label': 'Configuración (Modo Padres)', onclick: gate }, h('span', {}, '⚙️'));
+  return h('button', { class: 'gate', type: 'button', 'aria-label': 'Configuración (Modo Padres)', onclick: gate, html: GEAR_SVG });
 }
 
 function gate() {
@@ -48,6 +51,7 @@ export function toolbar() {
     h('span', { class: 'pbadge' }, '🔧 Modo Padres'),
     b('➕ Nueva ficha', () => newCard(S.boards.get(S.board)?.special ? 'home' : S.board, null)),
     h('button', { class: 'btn primary', onclick: openMenuPicker }, '🧩 Elegir qué ve el niño'),
+    b('🔎 Buscar', openSearch),
     b('📥 Importar pictogramas', openImport),
     b('⚙️ Ajustes', openSettings),
     b('🔲 Tamaño de esta pantalla', openBoardGrid),
@@ -512,17 +516,27 @@ function openArasaacBulk() {
 // ---------- Elegir qué menús y botones ve cada niño ----------
 // Esconder o mostrar solo cambia "hidden": las demás fichas no se mueven y el hueco queda.
 // Única excepción: una ficha escondida que estaba fuera de lo que el niño ve (fuera de la
-// cuadrícula o en una página que él no tiene) pasa a la primera casilla libre que sí ve.
-export async function setVisible(boardId, card, visible) {
+// cuadrícula o después de la página 1, que es la única que él tiene) pasa a la primera
+// casilla de su página que esté vacía o tenga otra ficha escondida (esa toma su lugar
+// anterior y sigue escondida). El niño nunca vio ninguna de las dos en esos lugares.
+export const seenByChild = c => !c.hidden && (c.boardId === 'quick' || ((c.page || 0) === 0 && inGrid(c)));
+function holeForChild(boardId, exceptId) {
+  const g = gridOf(boardId);
+  for (let row = 0; row < g.rows; row++) for (let col = 0; col < g.cols; col++) {
+    const slot = { page: 0, row, col };
+    const other = cardAt(boardId, slot, exceptId);
+    if (!other || other.hidden) return { slot, other };
+  }
+  return null;
+}
+export async function setVisible(boardId, card, visible, quiet = false) {
   const c = { ...card, hidden: !visible };
-  if (visible && card.hidden && boardId !== 'quick') {
-    const g = gridOf(boardId);
-    const seen = cardsOf(boardId).filter(x => x.id !== card.id && !x.hidden && inGrid(x, g));
-    const lastPage = seen.reduce((m, x) => Math.max(m, x.page || 0), 0);
-    if (!inGrid(card, g) || (card.page || 0) > lastPage) {
-      const free = firstFreeSlot(boardId);
-      if (free.page <= lastPage || !inGrid(card, g)) Object.assign(c, free);
-    }
+  if (visible && boardId !== 'quick' && !seenByChild(c)) {
+    const hole = holeForChild(boardId, card.id);
+    if (hole) {
+      if (hole.other) await saveCard({ ...hole.other, ...slotOf(card) });
+      Object.assign(c, hole.slot);
+    } else if (!quiet) toast(`“${card.label}” no cabe en la página 1: desmarca otra ficha primero para dejarle un hueco.`, 5000);
   }
   await saveCard(c);
   return c;
@@ -537,9 +551,11 @@ export function openMenuPicker() {
     const draw = () => {
       box.innerHTML = '';
       for (const c of cardsOf(boardId).filter(filter).sort((a, b) => a.label.localeCompare(b.label, 'es'))) {
-        const chk = h('input', { type: 'checkbox', checked: !c.hidden });
+        const seen = seenByChild(c);
+        const chk = h('input', { type: 'checkbox', checked: seen });
         chk.onchange = async () => { await setVisible(boardId, S.cards.get(c.id), chk.checked); draw(); };
-        box.append(h('label', { class: 'pick-item' + (c.hidden ? '' : ' on') }, chk, cardEl(c, 'tiny'), h('span', {}, c.label)));
+        box.append(h('label', { class: 'pick-item' + (seen ? ' on' : '') }, chk, cardEl(c, 'tiny'),
+          h('span', {}, c.label, !c.hidden && !seen ? h('small', { class: 'muted' }, ' (no cabe)') : null)));
       }
     };
     draw();
@@ -566,7 +582,9 @@ export function openMenuPicker() {
     const sel = h('select', {}, menus.map(c => h('option', { value: c.link }, c.label + (c.hidden ? ' (escondido)' : ''))));
     const holder = h('div');
     const all = (on) => async () => {
-      for (const c of cardsOf(sel.value)) if (!!c.hidden === on) await setVisible(sel.value, S.cards.get(c.id), on);
+      let left = 0;
+      for (const c of cardsOf(sel.value)) if (seenByChild(c) !== on) left += seenByChild(await setVisible(sel.value, S.cards.get(c.id), on, true)) === on ? 0 : 1;
+      if (left) toast(`${left} ficha(s) no caben en la página 1 y quedan guardadas.`, 4000);
       draw();
     };
     const draw = () => {
@@ -592,7 +610,7 @@ function openBoardGrid() {
     const next = cols ? { cols, rows } : { cols: S.settings.cols, rows: S.settings.rows };
     if (!(await confirmGrid([b.id], next))) return;
     const nb = { ...b };
-    if (cols) { nb.cols = cols; nb.rows = rows; } else { delete nb.cols; delete nb.rows; }
+    if (cols) { nb.cols = cols; nb.rows = rows; nb.manualGrid = true; } else { delete nb.cols; delete nb.rows; delete nb.manualGrid; }
     await saveBoard(nb);
     m.close();
   };
@@ -615,12 +633,14 @@ async function confirmGrid(boardIds, next) {
 }
 
 // Modo Padres: fichas guardadas fuera de la cuadrícula actual
+// Modo Padres: fichas que el niño no ve porque están fuera de la cuadrícula o después de la página 1
 export function outsideNotice(cards, g) {
-  const box = h('div', { class: 'outside-note' },
-    h('b', {}, `${cards.length} ficha(s) no caben en esta pantalla de ${g.cols}×${g.rows} y el niño no las ve: `),
-    cards.map(c => { const b = h('button', { class: 'btn sm' }, c.label); b.onclick = () => editCard(c); return b; }),
-    h('span', { class: 'muted small' }, ' Tócala para elegir otra fila y columna, o agranda la pantalla.'));
-  return box;
+  // Plegado: una sola línea para que el adulto siga viendo la página del niño
+  return h('details', { class: 'outside-note' },
+    h('summary', {}, `El niño solo ve la página 1 (${g.cols}×${g.rows}). ${cards.length} ficha(s) guardadas que él no ve`),
+    h('div', { class: 'outside-list' },
+      cards.map(c => { const b = h('button', { class: 'btn sm' }, c.label); b.onclick = () => editCard(c); return b; }),
+      h('span', { class: 'muted small' }, ' Para ponerla en la página 1: en “🧩 Elegir qué ve el niño” desmarca otra y marca esta, o tócala aquí y elige fila y columna.')));
 }
 
 // ---------- Ajustes ----------
@@ -657,6 +677,12 @@ function openSettings() {
     s.cols = cols; s.rows = rows; await saveSettings();
     return true;
   };
+  const ownGrids = [...S.boards.values()].filter(b => !b.special && b.id !== 'quick' && b.cols && b.rows && (b.cols !== s.cols || b.rows !== s.rows));
+  const sameSizeEverywhere = async (list) => {
+    if (!(await confirmGrid(list.map(b => b.id), { cols: s.cols, rows: s.rows }))) return false;
+    for (const b of list) { const nb = { ...b }; delete nb.cols; delete nb.rows; delete nb.manualGrid; await saveBoard(nb); }
+    return true;
+  };
   const gridSel = (k, n) => {
     const e = h('select', {}, nums(n).map(([v, t]) => h('option', { value: v, selected: s[k] === v }, t)));
     e.onchange = async () => {
@@ -683,7 +709,11 @@ function openSettings() {
     h('section', {}, h('h3', {}, '🔲 Cuadrícula'),
       h('p', { class: 'muted small' }, 'Columnas × filas de los menús que no tienen un tamaño propio. Cambiarla no mueve ninguna ficha: agrandar agrega casillas vacías y achicar esconde (sin borrar) lo que no cabe.'),
       presets,
-      h('div', { class: 'row' }, 'Columnas', gridSel('cols', 10), 'Filas', gridSel('rows', 8))),
+      h('div', { class: 'row' }, 'Columnas', gridSel('cols', 10), 'Filas', gridSel('rows', 8)),
+      ownGrids.length ? h('div', {},
+        h('p', { class: 'muted small' }, `Estas pantallas tienen un tamaño propio, distinto del general: ${ownGrids.map(b => `${b.name} (${b.cols}×${b.rows})`).join(', ')}.`),
+        h('button', { class: 'btn', onclick: async () => { if (await sameSizeEverywhere(ownGrids)) { m.close(); openSettings(); } } }, `Usar el mismo tamaño de ficha en todas (${s.cols}×${s.rows})`)) : null,
+      chk('gridSync', 'Misma cuadrícula en todos mis equipos: el respaldo lleva el tamaño de cada pantalla, así la tablet y el celular muestran cada ficha en el mismo lugar')),
     h('section', {}, h('h3', {}, '🔤 Texto y apariencia'),
       h('button', { class: 'btn', onclick: () => { m.close(); openMenuPicker(); } }, '🧩 Elegir menús y botones que ve el niño'),
       chk('showText', 'Mostrar el texto debajo de la imagen'),
@@ -743,11 +773,21 @@ async function importBackup(file) {
   const bkBoards = new Map(data.boards.map(b => [b.id, b]));
   slotsFromPos(data.cards, id => { const b = bkBoards.get(id); return b && b.cols && b.rows ? { cols: b.cols, rows: b.rows } : { cols: bkSettings.cols, rows: bkSettings.rows }; });
   data.kv = (data.kv || []).filter(e => e.key !== 'slotVersion').concat({ key: 'slotVersion', value: 1 });
+  // Sin "misma cuadrícula en todos mis equipos": este equipo conserva sus propios tamaños de pantalla
+  const keepGrid = bkSettings.gridSync === false;
+  if (keepGrid) {
+    for (const b of data.boards) {
+      const mine = S.boards.get(b.id);
+      delete b.cols; delete b.rows; delete b.manualGrid;
+      if (mine && mine.cols && mine.rows) Object.assign(b, { cols: mine.cols, rows: mine.rows, manualGrid: mine.manualGrid });
+    }
+  }
   for (const st of ['boards', 'cards', 'media', 'kv']) await db.clear(st);
   await db.putMany('boards', data.boards);
   await db.putMany('cards', data.cards);
   await db.putMany('media', data.media.map(m => ({ id: m.id, type: m.type, data: b64ToBuf(m.data) })));
-  const kv = data.kv.map(e => e.key === 'settings' ? { key: 'settings', value: { ...DEFAULT_SETTINGS, ...e.value, voiceURI: localVoice } } : e);
+  const own = keepGrid ? { cols: S.settings.cols, rows: S.settings.rows } : {};
+  const kv = data.kv.map(e => e.key === 'settings' ? { key: 'settings', value: { ...DEFAULT_SETTINGS, ...e.value, voiceURI: localVoice, ...own } } : e);
   await db.putMany('kv', kv);
   if (data.log && data.log.length) {
     await db.clear('log');
@@ -786,7 +826,7 @@ async function resetAll() {
 }
 
 // ---------- Actualizaciones ----------
-export const APP_VERSION = '2.1';
+export const APP_VERSION = '2.2';
 async function checkUpdate() {
   if (!navigator.onLine) { toast('Necesitas internet para buscar actualizaciones'); return; }
   toast('Buscando actualización…');

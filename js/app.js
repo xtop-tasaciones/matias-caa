@@ -4,7 +4,6 @@ import { buildDefaults } from './vocab.js';
 import * as voice from './speech.js';
 import { h, $, toast, today } from './ui.js';
 import { renderSpecial } from './special.js';
-import { openSearch } from './search.js';
 import * as parents from './parents.js';
 import { logEvent } from './log.js';
 import { iconSVG } from './icons.js';
@@ -26,8 +25,9 @@ export const DEFAULT_SETTINGS = {
   voiceURI: null,
   rate: 0.9,
   pitch: 1,
-  cols: 8,
-  rows: 5,
+  cols: 4,
+  rows: 3,
+  gridSync: true,
   showText: true,
   fontSize: 'm',
   debounceMs: 500,
@@ -272,9 +272,27 @@ export function speakPhrase() {
     const c = S.cards.get(S.phrase[0].cardId);
     if (c) { voice.sayCard(c); return; }
   }
-  const text = S.phrase.map(p => p.label).join(' ');
+  const text = phraseText(S.phrase);
   voice.speak(text);
   logEvent({ kind: 'phrase', label: text, words: S.phrase.length });
+}
+
+// Frase natural. Regla: cada ficha aporta su texto pronunciado (o su texto si no tiene);
+// si ese texto empieza con las mismas palabras con que termina lo ya dicho, no se repiten.
+// "Quiero" + "Agua" (dice "Quiero agua") → "Quiero agua", no "Quiero quiero agua".
+// "Yo quiero" + "Plaza Vea" (dice "Quiero ir a Plaza Vea") → "Yo quiero ir a Plaza Vea".
+const normWord = w => w.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9ñ]/g, '');
+export function phraseText(items) {
+  const out = [];
+  for (const p of items) {
+    const c = p.cardId && S.cards.get(p.cardId);
+    const words = String((c && c.speak) || p.label || '').trim().split(/\s+/).filter(Boolean);
+    let k = Math.min(out.length, words.length);
+    while (k > 0 && !words.slice(0, k).every((w, i) => normWord(w) === normWord(out[out.length - k + i]))) k--;
+    out.push(...words.slice(k));
+  }
+  const text = out.join(' ');
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 export function openBoard(id) {
@@ -331,7 +349,9 @@ export function renderStrip() {
   requestAnimationFrame(() => { list.scrollLeft = list.scrollWidth; });
 }
 
+// En Modo Niño hay una sola página por menú; las demás páginas solo las ve el adulto
 function pageCount(boardId) {
+  if (!S.parent) return 1;
   const g = gridOf(boardId);
   const cards = cardsOf(boardId).filter(c => (S.parent || !c.hidden) && inGrid(c, g));
   let pages = cards.reduce((m, c) => Math.max(m, (c.page || 0) + 1), 1);
@@ -360,10 +380,8 @@ function renderNav() {
   const title = h('div', { class: 'title' }, h('span', {}, board ? board.name : ''));
   const owner = [...S.cards.values()].find(c => c.type === 'folder' && c.link === S.board && c.boardId === 'home');
   if (owner && COLORS[owner.color]) title.firstChild.className = 'tpill c-' + owner.color;
-  const find = h('div', { class: 'navbtn find', 'aria-label': 'Buscar pictograma' }, h('span', { class: 'ico' }, '🔎'), h('span', { class: 'txt' }, 'Buscar'));
-  bindActivate(find, openSearch);
   const gear = parents.gateButton();
-  nav.append(home, title, pager, find, gear);
+  nav.append(home, title, pager, gear);
 }
 
 export function renderMain() {
@@ -415,8 +433,8 @@ export function renderMain() {
     }
   }
   main.append(grid);
-  // Fichas guardadas fuera de la cuadrícula actual (se achicó): solo las ve el adulto
-  const outside = all.filter(c => !inGrid(c, g));
+  // Fichas que el niño no ve porque no caben en su única página: solo las ve el adulto
+  const outside = all.filter(c => !c.hidden && (!inGrid(c, g) || (c.page || 0) > 0));
   if (S.parent && outside.length) main.prepend(parents.outsideNotice(outside, g));
 }
 
@@ -590,7 +608,8 @@ async function loadPictos() {
 async function init() {
   try {
     const existing = await db.getAll('boards');
-    if (!existing.length) await seedDefaults();
+    S.fresh = !existing.length;
+    if (S.fresh) await seedDefaults();
     await loadAll();
   } catch (e) {
     document.body.innerHTML = '<p style="padding:2rem;font-size:1.2rem">No se pudo abrir el almacenamiento del dispositivo. Si estás en modo incógnito/privado, abre la app en una ventana normal.</p>';
@@ -599,6 +618,8 @@ async function init() {
   await migrateLayout();
   await migrateColors();
   await migrateV3();
+  // Instalación nueva: el Inicio usa el mismo tamaño de ficha que los menús
+  if (S.fresh && S.boards.get('home')) { const hb = { ...S.boards.get('home') }; delete hb.cols; delete hb.rows; await saveBoard(hb); }
   await migrateSlots();
   await migrateQuiero();
   await loadPictos();
