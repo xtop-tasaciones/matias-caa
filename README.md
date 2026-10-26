@@ -19,7 +19,8 @@ Abre la dirección una vez con internet. Después funciona sin conexión.
 - **🏠 Inicio** siempre está en el mismo lugar para volver.
 - **🔎 Buscar:** escribe una palabra (por ejemplo “esperar”), toca el pictograma y se muestra en grande y se escucha. Con internet también aparecen pictogramas de ARASAAC.
 - **Inicio:** pocos menús grandes (Familia, Comida, Lugares, Intereses), cada uno con su color PECS.
-- **Barra de abajo:** Baño, Agua, Ayuda, Sí, No y un “Me duele” pequeño. Siempre visible.
+- **Barra de abajo:** Quiero, Baño, Agua, Ayuda, Sí, No y “Me duele”. Siempre visible. En el celular va en dos filas con botones grandes.
+- **Las fichas no se mueven solas:** cada ficha tiene su página, fila y columna. Esconder una deja su casilla vacía; agrandar la pantalla agrega casillas vacías; achicarla no borra nada (lo que no cabe queda guardado y el adulto ve un aviso). Solo cambia de lugar si un adulto la arrastra o la cambia en su editor.
 - **Modo Padres:** tocar la tuerca ⚙️ (arriba a la derecha) y resolver la suma (o el PIN si lo configuras).
 
 ## Modo Padres

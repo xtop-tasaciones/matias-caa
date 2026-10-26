@@ -64,12 +64,6 @@ export async function loadAll() {
   S.boards = new Map(boards.map(b => [b.id, b]));
   S.cards = new Map(cards.map(c => [c.id, c]));
   S.settings = { ...DEFAULT_SETTINGS, ...(settings || {}) };
-  // En celular, 3×4 deja los pictogramas más grandes que 4×4
-  if (settings && !isTablet() && !S.settings.phoneGrid) {
-    if (S.settings.cols === 4 && S.settings.rows === 4) S.settings.cols = 3;
-    S.settings.phoneGrid = 2;
-    db.setKV('settings', S.settings);
-  }
   S.schedule = schedule || { items: [], first: null, then: null, day: '' };
   S.choice = choice || { question: '', cardIds: [] };
   await db.preloadMedia();
@@ -101,21 +95,52 @@ export async function saveBoard(board) {
 export const saveSchedule = () => db.setKV('schedule', S.schedule);
 export const saveChoice = () => db.setKV('choice', S.choice);
 
-export function cardsOf(boardId) {
-  return [...S.cards.values()].filter(c => c.boardId === boardId).sort((a, b) => a.pos - b.pos);
+// ---------- Ubicación de las fichas ----------
+// Cada ficha guarda su casilla absoluta: página, fila y columna. Nunca cambia sola:
+// esconder, mostrar, agregar o cambiar la cuadrícula no mueve a las demás.
+// En la barra de abajo ("quick") solo cuenta la columna, que es el orden.
+export const slotKey = c => c.row == null ? (c.pos || 0) : (c.page || 0) * 10000 + c.row * 100 + c.col;
+export const slotOf = c => ({ page: c.page || 0, row: c.row, col: c.col });
+export const sameSlot = (a, b) => (a.page || 0) === (b.page || 0) && a.row === b.row && a.col === b.col;
+export const slotId = c => `${c.page || 0},${c.row},${c.col}`;
+export function parseSlot(str) {
+  const [page, row, col] = String(str).split(',').map(Number);
+  return { page, row, col };
 }
-export function firstFreePos(boardId, from = 0) {
-  const used = new Set(cardsOf(boardId).map(c => c.pos));
-  let p = from;
-  while (used.has(p)) p++;
-  return p;
+
+export function cardsOf(boardId) {
+  return [...S.cards.values()].filter(c => c.boardId === boardId).sort((a, b) => slotKey(a) - slotKey(b));
+}
+export function cardAt(boardId, slot, exceptId) {
+  return cardsOf(boardId).find(c => c.id !== exceptId && sameSlot(c, slot));
 }
 export function gridOf(boardId = S.board) {
   const b = S.boards.get(boardId);
   if (b && b.cols && b.rows) return { cols: b.cols, rows: b.rows };
   return { cols: S.settings.cols, rows: S.settings.rows };
 }
-export const perPage = (boardId = S.board) => { const g = gridOf(boardId); return g.cols * g.rows; };
+export const inGrid = (c, g = gridOf(c.boardId)) => c.row < g.rows && c.col < g.cols;
+
+// Primera casilla libre desde una página (para fichas nuevas, importadas o duplicadas)
+export function firstFreeSlot(boardId, fromPage = 0) {
+  const list = cardsOf(boardId);
+  if (boardId === 'quick') return { page: 0, row: 0, col: list.reduce((m, c) => Math.max(m, c.col), -1) + 1 };
+  const g = gridOf(boardId);
+  const used = new Set(list.map(slotId));
+  for (let page = fromPage; ; page++) {
+    for (let row = 0; row < g.rows; row++) {
+      for (let col = 0; col < g.cols; col++) if (!used.has(`${page},${row},${col}`)) return { page, row, col };
+    }
+  }
+}
+
+// Convierte el número lineal antiguo (pos) en casilla, con la cuadrícula que el niño veía
+export function posToSlot(pos, boardId, g) {
+  pos = Number(pos) || 0;
+  if (boardId === 'quick') return { page: 0, row: 0, col: pos };
+  const n = g.cols * g.rows;
+  return { page: Math.floor(pos / n), row: Math.floor((pos % n) / g.cols), col: (pos % n) % g.cols };
+}
 
 export function imgSrc(card) {
   if (!card || !card.image) return null;
@@ -307,10 +332,9 @@ export function renderStrip() {
 }
 
 function pageCount(boardId) {
-  const n = perPage();
-  const cards = cardsOf(boardId).filter(c => S.parent || !c.hidden);
-  const maxPos = cards.reduce((m, c) => Math.max(m, c.pos), -1);
-  let pages = Math.max(1, Math.ceil((maxPos + 1) / n));
+  const g = gridOf(boardId);
+  const cards = cardsOf(boardId).filter(c => (S.parent || !c.hidden) && inGrid(c, g));
+  let pages = cards.reduce((m, c) => Math.max(m, (c.page || 0) + 1), 1);
   if (S.parent) pages += 1; // una página extra para agregar fichas
   return pages;
 }
@@ -359,11 +383,13 @@ export function renderMain() {
   grid.style.setProperty('--cols', g.cols);
   grid.style.setProperty('--rows', g.rows);
   if (g.cols * g.rows <= 9) grid.classList.add('big');
-  const n = perPage();
-  const start = S.page * n;
-  const byPos = new Map(cardsOf(S.board).map(c => [c.pos, c]));
-  for (let i = start; i < start + n; i++) {
-    const card = byPos.get(i);
+  const all = cardsOf(S.board);
+  const bySlot = new Map(all.map(c => [slotId(c), c]));
+  const cells = [];
+  for (let row = 0; row < g.rows; row++) for (let col = 0; col < g.cols; col++) cells.push({ page: S.page, row, col });
+  for (const slot of cells) {
+    const i = slotId(slot);
+    const card = bySlot.get(i);
     if (card && (!card.hidden || S.parent)) {
       const el = cardEl(card, card.hidden ? 'is-hidden' : '');
       el.dataset.slot = i;
@@ -383,12 +409,15 @@ export function renderMain() {
       const empty = h('div', { class: 'slot-empty', 'data-slot': i });
       if (S.parent) {
         empty.append(h('span', {}, '+'));
-        empty.addEventListener('click', () => parents.newCard(S.board, i));
+        empty.addEventListener('click', () => parents.newCard(S.board, slot));
       }
       grid.append(empty);
     }
   }
   main.append(grid);
+  // Fichas guardadas fuera de la cuadrícula actual (se achicó): solo las ve el adulto
+  const outside = all.filter(c => !inGrid(c, g));
+  if (S.parent && outside.length) main.prepend(parents.outsideNotice(outside, g));
 }
 
 // Modo Padres: un toque para que el niño vea o no esta ficha
@@ -411,11 +440,17 @@ export function renderQuick() {
   q.innerHTML = '';
   q.classList.toggle('hide', !S.settings.quickBar && !S.parent);
   if (!S.settings.quickBar && !S.parent) return;
-  const cards = cardsOf('quick').filter(c => S.parent || !c.hidden);
+  const all = cardsOf('quick');
+  const shown = all.filter(c => !c.hidden);
+  const last = shown.length ? shown[shown.length - 1].col : -1;
+  const first = shown.length ? shown[0].col : 0;
+  // En Modo Niño, un botón escondido entre otros deja su hueco: los demás no se corren
+  const cards = S.parent ? all : all.filter(c => c.col >= first && c.col <= last);
   const count = cards.length + (S.parent ? 1 : 0);
   q.style.setProperty('--qn', count);
   q.style.setProperty('--qhalf', Math.ceil(count / 2));
   for (const card of cards) {
+    if (card.hidden && !S.parent) { q.append(h('div', { class: 'qcard qgap', 'aria-hidden': 'true' })); continue; }
     const el = cardEl(card, 'qcard' + (card.hidden ? ' is-hidden' : '') + (card.small ? ' small' : ''));
     if (S.parent) { el.addEventListener('click', () => parents.editCard(card)); el.append(visToggle(card, 'quick')); }
     else bindActivate(el, () => activateCard(card, 'Barra rápida'));
@@ -423,7 +458,7 @@ export function renderQuick() {
   }
   if (S.parent) {
     const add = h('div', { class: 'slot-empty qcard' }, h('span', {}, '+'));
-    add.addEventListener('click', () => parents.newCard('quick', firstFreePos('quick')));
+    add.addEventListener('click', () => parents.newCard('quick', firstFreeSlot('quick')));
     q.append(add);
   }
 }
@@ -504,6 +539,38 @@ async function migrateV3() {
   await db.setKV('layoutVersion', 3);
 }
 
+// Posiciones por página, fila y columna (antes un número lineal "pos").
+// Se calcula con la cuadrícula que tenía cada tablero, así el niño ve todo igual que antes.
+export function slotsFromPos(cards, gridFor) {
+  let changed = 0;
+  for (const c of cards) {
+    if (c.row != null && c.col != null) { if ('pos' in c) { delete c.pos; changed++; } continue; }
+    Object.assign(c, posToSlot(c.pos, c.boardId, gridFor(c.boardId)));
+    delete c.pos;
+    changed++;
+  }
+  return changed;
+}
+async function migrateSlots() {
+  if ((await db.getKV('slotVersion', 0)) >= 1) return;
+  const cards = [...S.cards.values()].map(c => ({ ...c }));
+  slotsFromPos(cards, id => gridOf(id));
+  for (const c of cards) await saveCard(c);
+  await db.setKV('slotVersion', 1);
+}
+
+// "Quiero" vuelve a la barra de abajo como primer botón (una sola vez)
+async function migrateQuiero() {
+  if ((await db.getKV('quieroVersion', 0)) >= 1) return;
+  const q = S.cards.get('q-quiero');
+  if (q && q.boardId === 'quick') {
+    const others = cardsOf('quick').filter(c => c.id !== q.id);
+    const minCol = others.reduce((m, c) => Math.min(m, c.col), 0);
+    await saveCard({ ...q, hidden: false, page: 0, row: 0, col: minCol - 1 });
+  }
+  await db.setKV('quieroVersion', 1);
+}
+
 // Pictogramas ARASAAC incluidos en la app (carpeta pictos/)
 export let PICTOS = {};
 async function loadPictos() {
@@ -532,6 +599,8 @@ async function init() {
   await migrateLayout();
   await migrateColors();
   await migrateV3();
+  await migrateSlots();
+  await migrateQuiero();
   await loadPictos();
   checkScheduleDay();
   applySettings();
