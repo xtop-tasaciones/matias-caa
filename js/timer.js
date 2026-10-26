@@ -56,7 +56,7 @@ export function openTimer(minutes) {
     if (ms <= 0) return finish();
     disk.innerHTML = diskSVG(ms / total);
     const m = Math.ceil(ms / 60000);
-    left.textContent = ms < 60000 ? 'Falta poquito' : `Faltan ${minText(m)}`;
+    left.textContent = ms < 60000 ? 'Falta poquito' : m === 1 ? 'Falta 1 minuto' : `Faltan ${minText(m)}`;
   };
   const finish = () => {
     clearInterval(timer);
