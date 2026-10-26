@@ -16,26 +16,16 @@ const arasaacThumb = id => S.settings.arasaacColor ? `https://static.arasaac.org
 
 // ---------- Entrada protegida ----------
 export function gateButton() {
-  const b = h('div', { class: 'gate', 'aria-label': 'Modo Padres (mantener presionado)' }, h('span', {}, '⚙'));
   if (S.parent) return h('div', { class: 'gate placeholder' });
-  let timer = null;
-  const cancel = () => { clearTimeout(timer); b.classList.remove('charging'); };
-  b.addEventListener('pointerdown', e => {
-    e.preventDefault();
-    b.classList.add('charging');
-    timer = setTimeout(() => { cancel(); gate(); }, 3000);
-  });
-  b.addEventListener('pointerup', cancel);
-  b.addEventListener('pointerleave', cancel);
-  b.addEventListener('pointercancel', cancel);
-  return b;
+  // Un toque abre la pregunta; la suma (o el PIN) es lo que protege del niño.
+  return h('button', { class: 'gate', type: 'button', 'aria-label': 'Configuración (Modo Padres)', onclick: gate }, h('span', {}, '⚙️'));
 }
 
 function gate() {
   const pin = S.settings.pin;
   const a = 3 + Math.floor(Math.random() * 7);
   const c = 4 + Math.floor(Math.random() * 6);
-  const m = modal('Modo Padres');
+  const m = modal('Configuración (Modo Padres)');
   const input = h('input', { type: pin ? 'password' : 'text', inputmode: 'numeric', autocomplete: 'off', class: 'big-input', maxlength: '8' });
   const msg = h('p', { class: 'error' });
   const ok = () => {
@@ -720,7 +710,7 @@ async function resetAll() {
 }
 
 // ---------- Actualizaciones ----------
-export const APP_VERSION = '1.5';
+export const APP_VERSION = '1.6';
 async function checkUpdate() {
   if (!navigator.onLine) { toast('Necesitas internet para buscar actualizaciones'); return; }
   toast('Buscando actualización…');

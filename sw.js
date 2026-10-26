@@ -1,10 +1,11 @@
 // Service worker: guarda la app completa para usarla sin internet.
-const VERSION = 'matias-v9';
+const VERSION = 'matias-v10';
 const APP = [
   './', './index.html', './manifest.webmanifest', './css/app.css',
   './js/app.js', './js/db.js', './js/vocab.js', './js/speech.js', './js/ui.js',
   './js/special.js', './js/parents.js', './js/log.js', './js/icons.js',
   './js/importer.js',
+  './js/search.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png',
 ];
 

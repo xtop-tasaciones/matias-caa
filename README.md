@@ -17,9 +17,10 @@ Abre la dirección una vez con internet. Después funciona sin conexión.
 
 - **Modo Niño:** tocar una ficha la dice en voz alta y la agrega a la tira de arriba. “Decir” lee la frase completa; “Borrar” quita la última; “Todo” limpia la frase.
 - **🏠 Inicio** siempre está en el mismo lugar para volver.
+- **🔎 Buscar:** escribe una palabra (por ejemplo “esperar”), toca el pictograma y se muestra en grande y se escucha. Con internet también aparecen pictogramas de ARASAAC.
 - **Inicio:** pocos menús grandes (Familia, Comida, Lugares, Intereses), cada uno con su color PECS.
 - **Barra de abajo:** Baño, Agua, Ayuda, Sí, No y un “Me duele” pequeño. Siempre visible.
-- **Modo Padres:** mantener presionado el engranaje ⚙ (arriba a la derecha) 3 segundos y resolver la suma (o el PIN si lo configuras).
+- **Modo Padres:** tocar la tuerca ⚙️ (arriba a la derecha) y resolver la suma (o el PIN si lo configuras).
 
 ## Modo Padres
 

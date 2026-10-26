@@ -4,6 +4,7 @@ import { buildDefaults } from './vocab.js';
 import * as voice from './speech.js';
 import { h, $, toast, today } from './ui.js';
 import { renderSpecial } from './special.js';
+import { openSearch } from './search.js';
 import * as parents from './parents.js';
 import { logEvent } from './log.js';
 import { iconSVG } from './icons.js';
@@ -63,6 +64,12 @@ export async function loadAll() {
   S.boards = new Map(boards.map(b => [b.id, b]));
   S.cards = new Map(cards.map(c => [c.id, c]));
   S.settings = { ...DEFAULT_SETTINGS, ...(settings || {}) };
+  // En celular, 3×4 deja los pictogramas más grandes que 4×4
+  if (settings && !isTablet() && !S.settings.phoneGrid) {
+    if (S.settings.cols === 4 && S.settings.rows === 4) S.settings.cols = 3;
+    S.settings.phoneGrid = 2;
+    db.setKV('settings', S.settings);
+  }
   S.schedule = schedule || { items: [], first: null, then: null, day: '' };
   S.choice = choice || { question: '', cardIds: [] };
   await db.preloadMedia();
@@ -75,7 +82,7 @@ export async function seedDefaults() {
   await db.setKV('schedule', d.schedule);
   await db.setKV('choice', d.choice);
   const s = { ...DEFAULT_SETTINGS };
-  if (!isTablet()) { s.cols = 4; s.rows = 4; }
+  if (!isTablet()) { s.cols = 3; s.rows = 4; s.phoneGrid = 2; }
   await db.setKV('settings', s);
 }
 
@@ -329,8 +336,10 @@ function renderNav() {
   const title = h('div', { class: 'title' }, h('span', {}, board ? board.name : ''));
   const owner = [...S.cards.values()].find(c => c.type === 'folder' && c.link === S.board && c.boardId === 'home');
   if (owner && COLORS[owner.color]) title.firstChild.className = 'tpill c-' + owner.color;
+  const find = h('div', { class: 'navbtn find', 'aria-label': 'Buscar pictograma' }, h('span', { class: 'ico' }, '🔎'), h('span', { class: 'txt' }, 'Buscar'));
+  bindActivate(find, openSearch);
   const gear = parents.gateButton();
-  nav.append(home, title, pager, gear);
+  nav.append(home, title, pager, find, gear);
 }
 
 export function renderMain() {
