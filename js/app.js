@@ -369,6 +369,7 @@ export function renderMain() {
       el.dataset.slot = i;
       if (S.parent) {
         parents.bindParentCard(el, card);
+        if (S.board !== 'quick') el.append(visToggle(card, S.board));
         if (card.type === 'folder' && S.boards.has(card.link)) {
           const open = h('button', { class: 'btn sm open-folder' }, 'Abrir ›');
           open.addEventListener('pointerdown', e => e.stopPropagation());
@@ -390,6 +391,20 @@ export function renderMain() {
   main.append(grid);
 }
 
+// Modo Padres: un toque para que el niño vea o no esta ficha
+function visToggle(card, boardId) {
+  const b = h('button', { class: 'vis-toggle' + (card.hidden ? ' off' : ''), type: 'button', 'aria-label': card.hidden ? 'Mostrar' : 'Esconder' },
+    card.hidden ? '🚫' : '👁');
+  b.title = card.hidden ? 'Oculta: tócala para mostrarla' : 'Se ve: tócala para esconderla';
+  b.addEventListener('pointerdown', e => e.stopPropagation());
+  b.addEventListener('click', async e => {
+    e.stopPropagation();
+    await parents.setVisible(boardId, S.cards.get(card.id), !!card.hidden);
+    render();
+  });
+  return b;
+}
+
 export function renderQuick() {
   const q = els.quick;
   if (!q) return;
@@ -402,7 +417,7 @@ export function renderQuick() {
   q.style.setProperty('--qhalf', Math.ceil(count / 2));
   for (const card of cards) {
     const el = cardEl(card, 'qcard' + (card.hidden ? ' is-hidden' : '') + (card.small ? ' small' : ''));
-    if (S.parent) el.addEventListener('click', () => parents.editCard(card));
+    if (S.parent) { el.addEventListener('click', () => parents.editCard(card)); el.append(visToggle(card, 'quick')); }
     else bindActivate(el, () => activateCard(card, 'Barra rápida'));
     q.append(el);
   }

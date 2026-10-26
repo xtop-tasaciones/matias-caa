@@ -24,7 +24,7 @@ Abre la dirección una vez con internet. Después funciona sin conexión.
 
 ## Modo Padres
 
-- **🧩 Elegir menús:** marca qué menús, palabras y botones de abajo ve este niño. Lo desmarcado queda guardado y escondido (útil para compañeros o para la terapeuta).
+- **🧩 Elegir qué ve el niño:** en el Inicio, marca qué menús, palabras y botones de abajo ve este niño. Dentro de un menú (por ejemplo Familia), muestra la lista de sus fichas con “Desmarcar todas” para dejar solo las que quieras. También puedes tocar 👁 / 🚫 en cada ficha. Lo desmarcado queda guardado y escondido (útil para compañeros o para la terapeuta).
 - **📥 Importar pictogramas:** elige muchas imágenes a la vez (o arrastra una carpeta en la Mac), escribe el nombre de cada una y elige a qué menú va. Si las imágenes están en carpetas con el nombre del menú (“Comida”, “Lugares”), se ponen solas. “➕ Menú nuevo…” crea un menú en el Inicio.
 - Tocar una ficha → editarla (foto, texto, voz, color, posición, ocultar, duplicar, eliminar).
 - Arrastrar una ficha → moverla. Si sueltas sobre otra, intercambian lugar.

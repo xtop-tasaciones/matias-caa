@@ -169,8 +169,11 @@ input, textarea, select { -webkit-user-select: text; user-select: text; font: in
   border: 3px dashed var(--line); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 2rem; cursor: pointer;
 }
 .parent-mode .grid { touch-action: none; }
-.card.is-hidden { opacity: .4; }
-.card.is-hidden::after { content: "oculta"; position: absolute; top: 6px; right: 6px; background: #444; color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 6px; }
+.card.is-hidden > :not(.vis-toggle):not(.open-folder) { opacity: .35; }
+.card.is-hidden { opacity: 1; border-style: dashed; }
+.vis-toggle { position: absolute; left: 3px; top: 3px; z-index: 3; width: 30px; height: 30px; padding: 0; font-size: 16px; border-radius: 50%;
+  border: 1.5px solid #2E7D32; background: #E8F5E9; cursor: pointer; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.vis-toggle.off { border-color: #555; background: #fff; }
 .card.dragging { opacity: .25; }
 .drag-ghost { position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none; opacity: .85; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
 .drop { outline: 4px solid var(--accent) !important; outline-offset: 2px; }

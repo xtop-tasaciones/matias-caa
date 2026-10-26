@@ -46,7 +46,7 @@ export function toolbar() {
   return h('div', { class: 'ptoolbar' },
     h('span', { class: 'pbadge' }, '🔧 Modo Padres'),
     b('➕ Nueva ficha', () => newCard(S.boards.get(S.board)?.special ? 'home' : S.board, null)),
-    b('🧩 Elegir menús', openMenuPicker),
+    h('button', { class: 'btn primary', onclick: openMenuPicker }, '🧩 Elegir qué ve el niño'),
     b('📥 Importar pictogramas', openImport),
     b('⚙️ Ajustes', openSettings),
     b('🔲 Tamaño de esta pantalla', openBoardGrid),
@@ -57,7 +57,7 @@ export function toolbar() {
     b('🔒 Bloqueo', openLockHelp),
     b('ℹ️ Acerca de', openAbout),
     h('button', { class: 'btn primary', onclick: () => { setParent(false); } }, '✅ Salir'),
-    h('span', { class: 'phint' }, 'Toca una ficha para editarla · arrástrala para moverla · toca + para crear'));
+    h('span', { class: 'phint' }, 'Toca una ficha para editarla · 👁 / 🚫 la muestra o la esconde · arrástrala para moverla · + para crear'));
 }
 
 // ---------- Mover fichas arrastrando ----------
@@ -524,12 +524,24 @@ export async function setVisible(boardId, card, visible) {
     const [cols, rows] = autoGrid(shown.length);
     await saveBoard({ ...S.boards.get('home'), cols, rows });
     p = Math.max(p, cols * rows);
+  } else if (boardId !== 'quick') {
+    // Pocas fichas en un menú: se agrandan solas; muchas: vuelve al tamaño general
+    const b = { ...S.boards.get(boardId) };
+    const general = S.settings.cols * S.settings.rows;
+    if (shown.length && shown.length < general) {
+      const [cols, rows] = autoGrid(shown.length);
+      if (cols * rows < general) { b.cols = cols; b.rows = rows; } else { delete b.cols; delete b.rows; }
+    } else { delete b.cols; delete b.rows; }
+    await saveBoard(b);
+    p = Math.max(p, (b.cols || S.settings.cols) * (b.rows || S.settings.rows));
   }
   for (const c of hiddenOnes) await saveCard({ ...c, pos: p++, hidden: true });
 }
 
 export function openMenuPicker() {
-  const m = modal('Elegir menús y botones', { wide: true, onClose: () => { S.board = 'home'; S.page = 0; render(); } });
+  const cur = S.boards.get(S.board);
+  const inMenu = cur && !cur.special && !['home', 'quick'].includes(cur.id);
+  const m = modal(inMenu ? 'Elegir fichas de “' + cur.name + '”' : 'Elegir menús y botones', { wide: true, onClose: () => { if (!inMenu) S.board = 'home'; S.page = 0; render(); } });
   const section = (title, help, boardId, filter) => {
     const box = h('div', { class: 'pick-list' });
     const draw = () => {
@@ -543,6 +555,10 @@ export function openMenuPicker() {
     draw();
     return h('section', {}, h('h3', {}, title), h('p', { class: 'muted small' }, help), box);
   };
+  if (inMenu) {
+    m.body.append(h('p', {}, 'Marca solo lo que este niño necesita ver en este menú. Lo desmarcado no se borra: queda escondido y se puede volver a marcar.'), insideMenus(cur.id));
+    return;
+  }
   m.body.append(
     h('p', {}, 'Marca lo que este niño necesita ver. Lo que no está marcado queda guardado y escondido; se puede volver a marcar cuando quieras. Los nuevos aparecen al final, sin mover los que ya conoce.'),
     section('Menús del Inicio', 'Carpetas grandes de la pantalla principal. El tamaño se ajusta solo según cuántas marques.', 'home', c => c.type === 'folder'),
@@ -552,9 +568,10 @@ export function openMenuPicker() {
   );
 
   // Fichas dentro de cada menú (qué comidas, qué lugares, qué juguetes…)
-  function insideMenus() {
-    const menus = cardsOf('home').filter(c => c.type === 'folder' && c.link && S.boards.has(c.link) && !S.boards.get(c.link).special)
-      .sort((a, b) => (a.hidden - b.hidden) || a.pos - b.pos);
+  function insideMenus(only) {
+    const menus = only ? [{ link: only, label: S.boards.get(only).name, hidden: false }]
+      : cardsOf('home').filter(c => c.type === 'folder' && c.link && S.boards.has(c.link) && !S.boards.get(c.link).special)
+        .sort((a, b) => (a.hidden - b.hidden) || a.pos - b.pos);
     if (!menus.length) return null;
     const sel = h('select', {}, menus.map(c => h('option', { value: c.link }, c.label + (c.hidden ? ' (escondido)' : ''))));
     const holder = h('div');
@@ -571,8 +588,8 @@ export function openMenuPicker() {
     };
     sel.onchange = draw;
     draw();
-    return h('section', {}, h('h3', {}, 'Dentro de cada menú'),
-      h('div', { class: 'row wrap' }, h('label', { class: 'field inline' }, h('span', {}, 'Menú'), sel),
+    return h('section', {}, only ? null : h('h3', {}, 'Dentro de cada menú'),
+      h('div', { class: 'row wrap' }, only ? null : h('label', { class: 'field inline' }, h('span', {}, 'Menú'), sel),
         h('button', { class: 'btn', onclick: all(true) }, 'Marcar todas'),
         h('button', { class: 'btn', onclick: all(false) }, 'Desmarcar todas')),
       holder);
@@ -738,7 +755,7 @@ async function resetAll() {
 }
 
 // ---------- Actualizaciones ----------
-export const APP_VERSION = '1.8';
+export const APP_VERSION = '1.9';
 async function checkUpdate() {
   if (!navigator.onLine) { toast('Necesitas internet para buscar actualizaciones'); return; }
   toast('Buscando actualización…');
