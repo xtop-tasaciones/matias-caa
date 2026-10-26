@@ -55,6 +55,7 @@ export function toolbar() {
     b('🖼️ ARASAAC', openArasaacBulk),
     b('🤔 Elegir', () => { S.board = 'elegir'; renderMain(); editChoice(); }),
     b('🔒 Bloqueo', openLockHelp),
+    b('🔄 Actualizar', checkUpdate),
     b('ℹ️ Acerca de', openAbout),
     h('button', { class: 'btn primary', onclick: () => { setParent(false); } }, '✅ Salir'),
     h('span', { class: 'phint' }, 'Toca una ficha para editarla · 👁 / 🚫 la muestra o la esconde · arrástrala para moverla · + para crear'));
@@ -755,7 +756,7 @@ async function resetAll() {
 }
 
 // ---------- Actualizaciones ----------
-export const APP_VERSION = '1.9';
+export const APP_VERSION = '2.0';
 async function checkUpdate() {
   if (!navigator.onLine) { toast('Necesitas internet para buscar actualizaciones'); return; }
   toast('Buscando actualización…');

@@ -551,7 +551,15 @@ async function init() {
   document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
 
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    // Actualizaciones solas: al volver a la app se busca versión nueva y, si llega, se recarga una vez
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadController && !reloaded && !S.parent) { reloaded = true; location.reload(); }
+    });
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    }).catch(() => {});
   }
 }
 
