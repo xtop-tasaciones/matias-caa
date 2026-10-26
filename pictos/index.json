@@ -549,7 +549,8 @@
  },
  "es-lonchera": {
   "arasaac": 31091,
-  "keyword": "táper",
+  "fixed": 39457,
+  "keyword": "lonchera",
   "v": 2
  },
  "es-mochila": {
@@ -559,6 +560,7 @@
  },
  "es-musica": {
   "arasaac": 11311,
+  "fixed": 24791,
   "keyword": "música",
   "v": 2
  },
@@ -569,7 +571,8 @@
  },
  "es-patio": {
   "arasaac": 6204,
-  "keyword": "recreo",
+  "fixed": 33065,
+  "keyword": "patio",
   "v": 2
  },
  "es-pintar": {
@@ -584,6 +587,7 @@
  },
  "es-recreo": {
   "arasaac": 6204,
+  "fixed": 33064,
   "keyword": "recreo",
   "v": 2
  },
