@@ -1,0 +1,3 @@
+es-musica: música, escuchar música, notas musicales
+es-patio: patio, patio del colegio, jugar en el patio
+es-lonchera: lonchera, fiambrera, mochila de comida, almuerzo

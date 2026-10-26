@@ -523,7 +523,8 @@
  },
  "es-casa": {
   "arasaac": 36465,
-  "keyword": "tienda de ropa de casa",
+  "fixed": 2317,
+  "keyword": "casa",
   "v": 2
  },
  "es-companeros": {
