@@ -15,13 +15,15 @@ Abre la dirección una vez con internet. Después funciona sin conexión.
 
 ## Uso diario
 
-- **Modo Niño:** tocar una ficha la dice en voz alta y la agrega a la tira de arriba. “Decir” lee la frase completa; “Borrar” quita la última; “Todo” limpia la frase.
+- **Modo Niño:** tocar una ficha la dice en voz alta y la agrega a la tira de arriba. “Decir” lee la frase completa de forma natural (si una ficha empieza con las mismas palabras con que termina lo anterior, no se repiten: “Quiero” + “quiero agua” dice “Quiero agua”); “Borrar” quita la última; “Todo” limpia la frase.
 - **🏠 Inicio** siempre está en el mismo lugar para volver.
-- **🔎 Buscar:** escribe una palabra (por ejemplo “esperar”), toca el pictograma y se muestra en grande y se escucha. Con internet también aparecen pictogramas de ARASAAC.
+- **🔎 Buscar (en Modo Padres):** escribe una palabra (por ejemplo “esperar”), toca el pictograma y se muestra en grande y se escucha. Con internet también aparecen pictogramas de ARASAAC.
 - **Inicio:** pocos menús grandes (Familia, Comida, Lugares, Intereses), cada uno con su color PECS.
 - **Barra de abajo:** Quiero, Baño, Agua, Ayuda, Sí, No y “Me duele”. Siempre visible. En el celular va en dos filas con botones grandes.
 - **Las fichas no se mueven solas:** cada ficha tiene su página, fila y columna. Esconder una deja su casilla vacía; agrandar la pantalla agrega casillas vacías; achicarla no borra nada (lo que no cabe queda guardado y el adulto ve un aviso). Solo cambia de lugar si un adulto la arrastra o la cambia en su editor.
-- **Modo Padres:** tocar la tuerca ⚙️ (arriba a la derecha) y resolver la suma (o el PIN si lo configuras).
+- **Una sola pantalla por menú:** el niño ve solo la página 1 de cada menú, sin flechas. Lo que no cabe queda guardado y el adulto lo ve en Modo Padres. En instalaciones nuevas el Inicio y los menús tienen el mismo tamaño de ficha; en Ajustes, “Usar el mismo tamaño de ficha en todas” lo iguala sin mover nada.
+- **Misma cuadrícula en todos mis equipos (Ajustes):** el respaldo lleva el tamaño de cada pantalla, así la tablet y el celular muestran cada ficha en el mismo lugar.
+- **Modo Padres:** tocar la tuerca gris pequeña (arriba a la derecha) y resolver la suma (o el PIN si lo configuras).
 
 ## Modo Padres
 

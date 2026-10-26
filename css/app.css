@@ -115,8 +115,8 @@ input, textarea, select { -webkit-user-select: text; user-select: text; font: in
 .pager .navbtn { min-width: 64px; font-size: calc(var(--fs) * 1.1); }
 .pginfo { min-width: 2.6em; text-align: center; font-weight: 700; color: var(--muted); }
 .gate {
-  height: 100%; min-width: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  background: var(--panel); border: 2px solid var(--line); font-size: calc(var(--fs) * 1.2); cursor: pointer; flex: none; padding: 0 10px;
+  height: 40px; width: 40px; flex: none; display: flex; align-items: center; justify-content: center; padding: 0;
+  background: transparent; border: 0; color: #9A9A9A; opacity: .7; cursor: pointer;
 }
 .gate.placeholder { visibility: hidden; }
 
@@ -367,8 +367,8 @@ ol li { margin: 6px 0; }
   .quick { flex-wrap: wrap; height: auto; padding: 4px; gap: 4px; }
   .quick > .qcard, .quick > .qcard.small { flex: 0 0 calc((100% - 12px) / 4); min-width: 80px; height: 88px; --bw: 4px; }
   .quick .card .label { font-size: 15px; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.05; }
-  .navbtn.find { min-width: 52px; padding: 0 8px; }
-  .gate { min-width: 52px; }
+  /* Modo Padres: la barra muestra también las escondidas; se desplaza para no achicar la página */
+  .parent-mode .quick { max-height: 188px; overflow-y: auto; }
 }
 
 .pick-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; }
@@ -408,5 +408,7 @@ ol li { margin: 6px 0; }
 .search-show .btn { font-size: 18px; padding: 12px 18px; }
 
 /* Fichas fuera de la cuadrícula (solo Modo Padres) */
-.outside-note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 10px; margin: 0 var(--gap) 6px;
+.outside-note summary { cursor: pointer; font-weight: 700; }
+.outside-list { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px; }
+.outside-note { padding: 6px 10px; margin: 0 var(--gap) 6px;
   border: 1.5px dashed #B26A00; border-radius: 10px; background: #FFF6E5; color: #5A3B00; font-size: 14px; }
