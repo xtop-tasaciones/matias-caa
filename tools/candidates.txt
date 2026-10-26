@@ -1,0 +1,5 @@
+co-pollo: pollo asado, muslo de pollo, carne de pollo, pollo
+co-arroz: arroz, plato de arroz, arroz blanco
+co-galleta: galleta, galletas
+co-pescado: pescado frito, pescado
+co-carne: filete, bistec, carne
