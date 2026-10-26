@@ -40,6 +40,8 @@ Abre la dirección una vez con internet. Después funciona sin conexión.
 - **Registro:** palabras más usadas, frases de 2 o más palabras y uso por día. “Planilla para la terapeuta (.csv)” crea una planilla (fecha, hora, tipo, texto, tablero) que se abre en Excel o Google Sheets; “Resumen (.txt)” crea un resumen corto.
 - **Estoy modelando:** mantén presionado 🏠 Inicio 2 segundos. Aparece un borde azul suave y lo que toques no se guarda en el registro. Mantén Inicio 2 segundos otra vez para terminar.
 - **Respaldo seguro:** antes de importar un respaldo se revisa el archivo completo (si está dañado no se cambia nada) y se guarda sola una copia de lo que había, para poder “↩️ Volver a como estaba” desde 💾 Respaldo. Si pasan 7 días sin guardar un respaldo, el Modo Padres te lo recuerda.
+- **Menú Colegio:** 18 fichas para el colegio (profesora, compañeros, baño, agua, ayuda, terminé, recreo, lonchera, jugar, descansar, ir a casa, no quiero, y más). Viene escondido en el Inicio: muéstralo con “🧩 Elegir qué ve el niño” y ajusta sus fichas como cualquier menú.
+- **⏳ Esperar:** temporizador visual de 1, 2, 5 o 10 minutos: un disco que se va vaciando, sin sonidos, y al final dice “¡Listo!”. Desde Modo Padres (botón ⏳ Esperar) o, si lo muestras, desde la carpeta “Esperar” del Inicio. Para cerrarlo antes, mantén ✕ un segundo.
 - **Voz:** si el equipo no tiene una voz en español, el Modo Padres lo avisa y muestra los pasos para instalarla.
 
 ## Actualizaciones

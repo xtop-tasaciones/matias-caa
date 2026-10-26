@@ -979,7 +979,7 @@ function openAbout() {
     h('p', {}, '📊 Registro: guarda lo que el niño toca y las frases que forma, para la terapeuta (planilla .csv). Lo que se toca en Modo Padres o mientras modelas (mantén Inicio 2 segundos) no se guarda.'),
     h('p', {}, '💾 Respaldo: antes de importar o restablecer se guarda sola una copia para poder volver atrás, y la app te recuerda guardar un respaldo si pasan 7 días sin hacerlo.'),
     h('p', {}, '🖼️ Pictogramas: los símbolos pictográficos utilizados son propiedad del Gobierno de Aragón y han sido creados por Sergio Palao para ARASAAC (', h('a', { href: 'https://arasaac.org', target: '_blank', rel: 'noopener' }, 'arasaac.org'), '), que los distribuye bajo Licencia Creative Commons BY-NC-SA.'),
-    h('p', {}, '⏳ Esperar: un temporizador visual que muestra cuánto falta, sin sonidos.'),
+    h('p', {}, '🏫 Colegio y ⏳ Esperar (un temporizador visual que muestra cuánto falta, sin sonidos) vienen escondidos en el Inicio: muéstralos con “🧩 Elegir qué ve el niño”.'),
     h('p', { class: 'muted small' }, 'Colores de borde (código Fitzgerald): amarillo personas, verde acciones, naranja cosas, azul descriptivos, morado lugares, rosa social, rojo negación/urgente.'),
     h('p', { class: 'muted small' }, 'Versión ' + APP_VERSION),
     h('button', { class: 'btn primary', onclick: checkUpdate }, '🔄 Buscar actualización'),
