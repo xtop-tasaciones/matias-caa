@@ -1,7 +1,8 @@
 // Modo Padres: entrada protegida, edición de fichas y carpetas, ajustes, respaldo, ARASAAC.
 import * as db from './db.js';
 import {
-  S, COLORS, DEFAULT_SETTINGS, cardEl, cardsOf, firstFreePos, perPage, gridOf, saveCard, saveBoard, saveSettings,
+  S, COLORS, DEFAULT_SETTINGS, cardEl, cardsOf, firstFreeSlot, cardAt, slotOf, sameSlot, parseSlot, inGrid, gridOf,
+  saveCard, saveBoard, saveSettings, slotsFromPos,
   setParent, render, renderMain, renderQuick, gcMedia, seedDefaults, applySettings,
 } from './app.js';
 import * as voice from './speech.js';
@@ -99,10 +100,10 @@ export function bindParentCard(el, card) {
       if (target.dataset.pagejump) {
         const dir = Number(target.dataset.pagejump);
         const page = Math.max(0, S.page + dir);
-        await moveCard(card, firstFreePos(card.boardId, page * perPage()));
+        await moveCard(card, firstFreeSlot(card.boardId, page));
         S.page = page;
       } else {
-        await moveCard(card, Number(target.dataset.slot));
+        await moveCard(card, parseSlot(target.dataset.slot));
       }
       renderMain();
     };
@@ -112,19 +113,19 @@ export function bindParentCard(el, card) {
   });
 }
 
-async function moveCard(card, pos) {
-  if (pos === card.pos) return;
-  const other = cardsOf(card.boardId).find(c => c.pos === pos && c.id !== card.id);
-  if (other) { other.pos = card.pos; await saveCard(other); }
-  card.pos = pos;
-  await saveCard(card);
+// Mover a propósito: si la casilla está ocupada, las dos fichas intercambian lugar
+async function moveCard(card, slot) {
+  if (sameSlot(card, slot)) return;
+  const other = cardAt(card.boardId, slot, card.id);
+  if (other) await saveCard({ ...other, ...slotOf(card) });
+  await saveCard({ ...card, ...slot });
 }
 
 // ---------- Editor de fichas ----------
-export function newCard(boardId, pos) {
-  if (pos == null) pos = firstFreePos(boardId);
+export function newCard(boardId, slot) {
+  if (slot == null) slot = firstFreeSlot(boardId);
   editCard({
-    id: db.uid('c'), boardId, pos, label: '', speak: '', emoji: '', color: boardId === 'personas' ? 'persona' : boardId === 'lugares' ? 'lugar' : 'cosa',
+    id: db.uid('c'), boardId, ...slot, label: '', speak: '', emoji: '', color: boardId === 'personas' ? 'persona' : boardId === 'lugares' ? 'lugar' : 'cosa',
     type: 'word', link: null, q: '', hidden: false, image: null, audio: null, _new: true,
   });
 }
@@ -226,10 +227,10 @@ export function editCard(card) {
 
   // Ubicación
   const boardSel = h('select', {}, boardOptions().map(b => h('option', { value: b.id, selected: d.boardId === b.id }, b.name)));
-  const gd = gridOf(d.boardId), n = gd.cols * gd.rows, cols = gd.cols;
-  const pIn = h('input', { type: 'number', min: 1, value: Math.floor(d.pos / n) + 1, class: 'num-in' });
-  const rIn = h('input', { type: 'number', min: 1, max: gd.rows, value: Math.floor((d.pos % n) / cols) + 1, class: 'num-in' });
-  const cIn = h('input', { type: 'number', min: 1, max: cols, value: (d.pos % n) % cols + 1, class: 'num-in' });
+  const gd = gridOf(d.boardId);
+  const pIn = h('input', { type: 'number', min: 1, value: (d.page || 0) + 1, class: 'num-in' });
+  const rIn = h('input', { type: 'number', min: 1, max: gd.rows, value: d.row + 1, class: 'num-in' });
+  const cIn = h('input', { type: 'number', min: 1, max: gd.cols, value: d.col + 1, class: 'num-in' });
   const hiddenChk = h('input', { type: 'checkbox', checked: !!d.hidden });
 
   const save = async () => {
@@ -249,21 +250,21 @@ export function editCard(card) {
     } else if (d.link === '__new') d.link = null;
     // Ubicación
     const newBoard = boardSel.value;
-    let pos;
-    if (newBoard !== card.boardId) pos = firstFreePos(newBoard);
+    let slot;
+    if (newBoard !== card.boardId) slot = firstFreeSlot(newBoard);
+    else if (d.boardId === 'quick') slot = slotOf(d);
     else {
-      const pg = Math.max(1, Number(pIn.value) || 1) - 1;
-      const r = Math.min(gd.rows, Math.max(1, Number(rIn.value) || 1)) - 1;
-      const c = Math.min(cols, Math.max(1, Number(cIn.value) || 1)) - 1;
-      pos = d.boardId === 'quick' ? d.pos : pg * n + r * cols + c;
+      const num = (inp, max) => Math.min(max, Math.max(1, Number(inp.value) || 1)) - 1;
+      slot = { page: num(pIn, 99), row: num(rIn, gd.rows), col: num(cIn, gd.cols) };
     }
     d.boardId = newBoard;
-    const other = cardsOf(newBoard).find(x => x.pos === pos && x.id !== d.id);
+    const other = cardAt(newBoard, slot, d.id);
     if (other) {
-      if (!isNew && newBoard === card.boardId) { other.pos = card.pos; await saveCard(other); }
-      else pos = firstFreePos(newBoard, pos);
+      if (!isNew && newBoard === card.boardId) await saveCard({ ...other, ...slotOf(card) });
+      else slot = firstFreeSlot(newBoard, slot.page);
     }
-    d.pos = pos;
+    Object.assign(d, slot);
+    delete d.pos;
     await saveCard(d);
     m.close();
     await gcMedia();
@@ -271,7 +272,7 @@ export function editCard(card) {
   };
 
   const dup = async () => {
-    const copy = { ...d, id: db.uid('c'), pos: firstFreePos(d.boardId, d.pos), label: d.label };
+    const copy = { ...d, id: db.uid('c'), ...firstFreeSlot(d.boardId, d.page || 0), label: d.label };
     await saveCard(copy);
     m.close();
     render();
@@ -509,34 +510,22 @@ function openArasaacBulk() {
 }
 
 // ---------- Elegir qué menús y botones ve cada niño ----------
-function autoGrid(n) {
-  for (const [c, r] of [[2, 2], [3, 2], [3, 3], [4, 3], [4, 4], [5, 4], [6, 5]]) if (n <= c * r) return [c, r];
-  return [8, 5];
-}
-
+// Esconder o mostrar solo cambia "hidden": las demás fichas no se mueven y el hueco queda.
+// Única excepción: una ficha escondida que estaba fuera de lo que el niño ve (fuera de la
+// cuadrícula o en una página que él no tiene) pasa a la primera casilla libre que sí ve.
 export async function setVisible(boardId, card, visible) {
-  const list = cardsOf(boardId);
-  const shown = list.filter(c => !c.hidden && c.id !== card.id);
-  const hiddenOnes = list.filter(c => c.hidden && c.id !== card.id);
-  if (visible) shown.push(card); else hiddenOnes.unshift(card);
-  let p = 0;
-  for (const c of shown) await saveCard({ ...c, pos: p++, hidden: false });
-  if (boardId === 'home') {
-    const [cols, rows] = autoGrid(shown.length);
-    await saveBoard({ ...S.boards.get('home'), cols, rows });
-    p = Math.max(p, cols * rows);
-  } else if (boardId !== 'quick') {
-    // Pocas fichas en un menú: se agrandan solas; muchas: vuelve al tamaño general
-    const b = { ...S.boards.get(boardId) };
-    const general = S.settings.cols * S.settings.rows;
-    if (shown.length && shown.length < general) {
-      const [cols, rows] = autoGrid(shown.length);
-      if (cols * rows < general) { b.cols = cols; b.rows = rows; } else { delete b.cols; delete b.rows; }
-    } else { delete b.cols; delete b.rows; }
-    await saveBoard(b);
-    p = Math.max(p, (b.cols || S.settings.cols) * (b.rows || S.settings.rows));
+  const c = { ...card, hidden: !visible };
+  if (visible && card.hidden && boardId !== 'quick') {
+    const g = gridOf(boardId);
+    const seen = cardsOf(boardId).filter(x => x.id !== card.id && !x.hidden && inGrid(x, g));
+    const lastPage = seen.reduce((m, x) => Math.max(m, x.page || 0), 0);
+    if (!inGrid(card, g) || (card.page || 0) > lastPage) {
+      const free = firstFreeSlot(boardId);
+      if (free.page <= lastPage || !inGrid(card, g)) Object.assign(c, free);
+    }
   }
-  for (const c of hiddenOnes) await saveCard({ ...c, pos: p++, hidden: true });
+  await saveCard(c);
+  return c;
 }
 
 export function openMenuPicker() {
@@ -561,8 +550,8 @@ export function openMenuPicker() {
     return;
   }
   m.body.append(
-    h('p', {}, 'Marca lo que este niño necesita ver. Lo que no está marcado queda guardado y escondido; se puede volver a marcar cuando quieras. Los nuevos aparecen al final, sin mover los que ya conoce.'),
-    section('Menús del Inicio', 'Carpetas grandes de la pantalla principal. El tamaño se ajusta solo según cuántas marques.', 'home', c => c.type === 'folder'),
+    h('p', {}, 'Marca lo que este niño necesita ver. Lo que no está marcado queda guardado y escondido; se puede volver a marcar cuando quieras. Esconder deja la casilla vacía: las demás fichas no se mueven.'),
+    section('Menús del Inicio', 'Carpetas grandes de la pantalla principal. Si el Inicio está lleno, un menú nuevo aparece en otra página: primero agranda el Inicio en “🔲 Tamaño de esta pantalla” (no mueve nada) y después márcalo.', 'home', c => c.type === 'folder'),
     section('Palabras sueltas en el Inicio', 'Palabras de uso frecuente (yo, quiero, más…). Recomendado solo cuando ya maneja los menús.', 'home', c => c.type !== 'folder'),
     section('Barra de abajo (urgencias)', 'Botones que se ven siempre, en todas las pantallas.', 'quick', () => true),
     insideMenus(),
@@ -572,20 +561,17 @@ export function openMenuPicker() {
   function insideMenus(only) {
     const menus = only ? [{ link: only, label: S.boards.get(only).name, hidden: false }]
       : cardsOf('home').filter(c => c.type === 'folder' && c.link && S.boards.has(c.link) && !S.boards.get(c.link).special)
-        .sort((a, b) => (a.hidden - b.hidden) || a.pos - b.pos);
+        .sort((a, b) => a.hidden - b.hidden);
     if (!menus.length) return null;
     const sel = h('select', {}, menus.map(c => h('option', { value: c.link }, c.label + (c.hidden ? ' (escondido)' : ''))));
     const holder = h('div');
     const all = (on) => async () => {
-      const list = cardsOf(sel.value);
-      if (!list.length) return;
-      for (const c of list) if (!!c.hidden === on) await saveCard({ ...c, hidden: !on });
-      await setVisible(sel.value, S.cards.get(list[0].id), on);
+      for (const c of cardsOf(sel.value)) if (!!c.hidden === on) await setVisible(sel.value, S.cards.get(c.id), on);
       draw();
     };
     const draw = () => {
       holder.innerHTML = '';
-      holder.append(section('Fichas de “' + S.boards.get(sel.value).name + '”', 'Lo desmarcado no lo ve el niño. Las marcadas se juntan al principio, sin huecos.', sel.value, () => true));
+      holder.append(section('Fichas de “' + S.boards.get(sel.value).name + '”', 'Lo desmarcado no lo ve el niño y su casilla queda vacía; las demás fichas no se mueven.', sel.value, () => true));
     };
     sel.onchange = draw;
     draw();
@@ -602,14 +588,39 @@ function openBoardGrid() {
   const b = S.boards.get(S.board);
   if (!b || b.special) { toast('Abre una carpeta normal o el Inicio para cambiar su tamaño'); return; }
   const m = modal('Tamaño de “' + b.name + '”', { wide: true, onClose: () => render() });
-  const set = async (cols, rows) => { const nb = { ...b }; if (cols) { nb.cols = cols; nb.rows = rows; } else { delete nb.cols; delete nb.rows; } await saveBoard(nb); m.close(); };
+  const set = async (cols, rows) => {
+    const next = cols ? { cols, rows } : { cols: S.settings.cols, rows: S.settings.rows };
+    if (!(await confirmGrid([b.id], next))) return;
+    const nb = { ...b };
+    if (cols) { nb.cols = cols; nb.rows = rows; } else { delete nb.cols; delete nb.rows; }
+    await saveBoard(nb);
+    m.close();
+  };
   const g = gridOf(b.id);
   m.body.append(
     h('p', {}, 'Elige cuántas fichas grandes se ven en esta pantalla (columnas × filas). Las demás carpetas siguen con el tamaño general de Ajustes.'),
     h('div', { class: 'row wrap' }, [[1, 1], [2, 1], [2, 2], [3, 2], [5, 1], [3, 3], [4, 3], [4, 4], [5, 4], [6, 5], [8, 5]].map(([c, r]) =>
       h('button', { class: 'btn' + (b.cols === c && b.rows === r ? ' on' : ''), onclick: () => set(c, r) }, `${c}×${r}`))),
     h('div', { class: 'row', style: { marginTop: '12px' } }, h('button', { class: 'btn', onclick: () => set(null) }, `Usar el tamaño general (${S.settings.cols}×${S.settings.rows})`)),
-    h('p', { class: 'muted small' }, `Ahora: ${g.cols}×${g.rows}. Las fichas que no caben pasan a la página siguiente; las ocultas no se muestran al niño.`));
+    h('p', { class: 'muted small' }, `Ahora: ${g.cols}×${g.rows}. Agrandar agrega filas y columnas vacías sin mover nada. Achicar no borra fichas: las que no caben quedan guardadas y escondidas para el niño.`));
+}
+
+// Aviso antes de cambiar una cuadrícula: cuántas fichas quedarían fuera (no se borran)
+async function confirmGrid(boardIds, next) {
+  const out = [...S.cards.values()].filter(c => boardIds.includes(c.boardId) && !c.hidden && !inGrid(c, next));
+  const msg = `La pantalla quedará de ${next.cols}×${next.rows}. Las fichas no se mueven de su lugar.` +
+    (out.length ? ` ${out.length} ficha(s) no caben (${out.slice(0, 6).map(c => c.label).join(', ')}${out.length > 6 ? '…' : ''}): quedan guardadas, pero el niño no las verá hasta que agrandes la pantalla o las muevas.` : '') +
+    ' Cambia la cuadrícula pocas veces: él recuerda dónde está cada ficha.';
+  return confirmBox(msg, { ok: 'Cambiar', danger: out.length > 0 });
+}
+
+// Modo Padres: fichas guardadas fuera de la cuadrícula actual
+export function outsideNotice(cards, g) {
+  const box = h('div', { class: 'outside-note' },
+    h('b', {}, `${cards.length} ficha(s) no caben en esta pantalla de ${g.cols}×${g.rows} y el niño no las ve: `),
+    cards.map(c => { const b = h('button', { class: 'btn sm' }, c.label); b.onclick = () => editCard(c); return b; }),
+    h('span', { class: 'muted small' }, ' Tócala para elegir otra fila y columna, o agranda la pantalla.'));
+  return box;
 }
 
 // ---------- Ajustes ----------
@@ -640,9 +651,23 @@ function openSettings() {
     return h('label', { class: 'check' }, c, ' ' + text);
   };
   const nums = n => Array.from({ length: n }, (_, i) => [i + 1, String(i + 1)]);
+  const setGeneralGrid = async (cols, rows) => {
+    const affected = [...S.boards.values()].filter(b => !b.special && b.id !== 'quick' && !(b.cols && b.rows)).map(b => b.id);
+    if (!(await confirmGrid(affected, { cols, rows }))) return false;
+    s.cols = cols; s.rows = rows; await saveSettings();
+    return true;
+  };
+  const gridSel = (k, n) => {
+    const e = h('select', {}, nums(n).map(([v, t]) => h('option', { value: v, selected: s[k] === v }, t)));
+    e.onchange = async () => {
+      const v = Number(e.value);
+      if (!(await setGeneralGrid(k === 'cols' ? v : s.cols, k === 'rows' ? v : s.rows))) e.value = s[k];
+    };
+    return e;
+  };
   const presets = h('div', { class: 'row wrap' }, [[2, 2], [3, 3], [4, 4], [4, 5], [5, 6], [6, 5], [7, 6], [8, 6]].map(([c, r]) => {
     const b = h('button', { class: 'btn sm' + (s.cols === c && s.rows === r ? ' on' : '') }, `${c}×${r}`);
-    b.onclick = () => { s.cols = c; s.rows = r; saveSettings(); m.close(); openSettings(); };
+    b.onclick = async () => { if (await setGeneralGrid(c, r)) { m.close(); openSettings(); } };
     return b;
   }));
   const pinIn = h('input', { type: 'text', inputmode: 'numeric', value: s.pin || '', placeholder: 'Vacío = resolver una suma', maxlength: '8' });
@@ -656,9 +681,9 @@ function openSettings() {
       h('label', { class: 'field' }, h('span', {}, 'Tono'), range('pitch', 0.5, 1.6, 0.05, v => Number(v).toFixed(2))),
       h('button', { class: 'btn', onclick: () => voice.speak('Hola, soy la voz de Matías. Quiero jugar.') }, '🔊 Probar voz')),
     h('section', {}, h('h3', {}, '🔲 Cuadrícula'),
-      h('p', { class: 'muted small' }, 'Columnas × filas. Empieza con pocas fichas y crece. Cambiar la cuadrícula reacomoda las páginas; hazlo pocas veces para que él no pierda la memoria de dónde está cada palabra.'),
+      h('p', { class: 'muted small' }, 'Columnas × filas de los menús que no tienen un tamaño propio. Cambiarla no mueve ninguna ficha: agrandar agrega casillas vacías y achicar esconde (sin borrar) lo que no cabe.'),
       presets,
-      h('div', { class: 'row' }, 'Columnas', sel('cols', nums(10)), 'Filas', sel('rows', nums(8)))),
+      h('div', { class: 'row' }, 'Columnas', gridSel('cols', 10), 'Filas', gridSel('rows', 8))),
     h('section', {}, h('h3', {}, '🔤 Texto y apariencia'),
       h('button', { class: 'btn', onclick: () => { m.close(); openMenuPicker(); } }, '🧩 Elegir menús y botones que ve el niño'),
       chk('showText', 'Mostrar el texto debajo de la imagen'),
@@ -713,6 +738,11 @@ async function importBackup(file) {
   const ok = await confirmBox(`Se reemplazará todo el tablero de este equipo por el del respaldo (${data.cards.length} fichas, ${data.media.length} fotos/audios, del ${new Date(data.created).toLocaleDateString('es-PE')}). ¿Continuar?`, { ok: 'Importar', danger: true });
   if (!ok) return;
   const localVoice = S.settings.voiceURI;
+  // Respaldos de versiones anteriores guardan "pos": se pasa a fila y columna con la cuadrícula del respaldo
+  const bkSettings = { ...DEFAULT_SETTINGS, ...((data.kv || []).find(e => e.key === 'settings')?.value || {}) };
+  const bkBoards = new Map(data.boards.map(b => [b.id, b]));
+  slotsFromPos(data.cards, id => { const b = bkBoards.get(id); return b && b.cols && b.rows ? { cols: b.cols, rows: b.rows } : { cols: bkSettings.cols, rows: bkSettings.rows }; });
+  data.kv = (data.kv || []).filter(e => e.key !== 'slotVersion').concat({ key: 'slotVersion', value: 1 });
   for (const st of ['boards', 'cards', 'media', 'kv']) await db.clear(st);
   await db.putMany('boards', data.boards);
   await db.putMany('cards', data.cards);
@@ -756,7 +786,7 @@ async function resetAll() {
 }
 
 // ---------- Actualizaciones ----------
-export const APP_VERSION = '2.0';
+export const APP_VERSION = '2.1';
 async function checkUpdate() {
   if (!navigator.onLine) { toast('Necesitas internet para buscar actualizaciones'); return; }
   toast('Buscando actualización…');

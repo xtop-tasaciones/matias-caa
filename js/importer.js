@@ -1,8 +1,8 @@
 // Importar muchos pictogramas propios a la vez (por ejemplo, los que ya hizo mamá) y elegir a qué menú va cada uno.
 import * as db from './db.js';
-import { S, cardsOf, firstFreePos, saveCard, saveBoard, render } from './app.js';
+import { S, cardsOf, firstFreeSlot, saveCard, saveBoard, render } from './app.js';
 import { h, modal, toast } from './ui.js';
-import { resizeImage, setVisible } from './parents.js';
+import { resizeImage } from './parents.js';
 
 const norm = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 const isImage = f => f.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|heic|heif|bmp|svg)$/i.test(f.name);
@@ -87,10 +87,11 @@ export function openImport() {
     if (!name) return null;
     const b = { id: db.uid('b'), name };
     await saveBoard(b);
-    const folder = { id: db.uid('c'), boardId: 'home', pos: firstFreePos('home'), label: name, speak: '', emoji: '', color: 'cosa',
+    const slot = firstFreeSlot('home');
+    const folder = { id: db.uid('c'), boardId: 'home', ...slot, label: name, speak: '', emoji: '', color: 'cosa',
       type: 'folder', link: b.id, q: '', hidden: false, image: null, audio: null };
     await saveCard(folder);
-    await setVisible('home', folder, true);
+    if (slot.page > 0) toast(`“${name}” quedó en la página ${slot.page + 1} del Inicio. Para verlo en la primera, agranda el Inicio en “Tamaño de esta pantalla”.`, 6000);
     list.push({ id: b.id, name });
     return b.id;
   }
@@ -176,7 +177,7 @@ export function openImport() {
         const mid = await db.saveMedia(blob);
         await db.mediaURL(mid);
         const label = it.label.trim();
-        await saveCard({ id: db.uid('c'), boardId: it.board, pos: firstFreePos(it.board), label, speak: '', emoji: '', color: colorFor(it.board),
+        await saveCard({ id: db.uid('c'), boardId: it.board, ...firstFreeSlot(it.board), label, speak: '', emoji: '', color: colorFor(it.board),
           type: 'word', link: null, q: '', hidden: false, image: { kind: 'media', id: mid }, audio: null });
         ok++;
         it.done = true;
