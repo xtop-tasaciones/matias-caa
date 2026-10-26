@@ -358,6 +358,7 @@
  },
  "co-arroz": {
   "arasaac": 6911,
+  "fixed": 39387,
   "keyword": "arroz",
   "v": 2
  },
@@ -398,7 +399,8 @@
  },
  "co-galleta": {
   "arasaac": 8312,
-  "keyword": "galleta",
+  "fixed": 2402,
+  "keyword": "galletas",
   "v": 2
  },
  "co-gelatina": {
@@ -459,7 +461,8 @@
  },
  "co-pescado": {
   "arasaac": 2519,
-  "keyword": "pescado",
+  "fixed": 36428,
+  "keyword": "pescado a la plancha",
   "v": 2
  },
  "co-platano": {
@@ -469,7 +472,8 @@
  },
  "co-pollo": {
   "arasaac": 2533,
-  "keyword": "pollo",
+  "fixed": 2534,
+  "keyword": "muslo de pollo",
   "v": 2
  },
  "co-queso": {
